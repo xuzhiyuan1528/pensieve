@@ -34,7 +34,8 @@ exp_id = sys.argv[3]
 # ---------------------------------------------------
 #          |
 #          v
-url = 'localhost/' + 'myindex_' + abr_algo + '.html'
+# url = 'localhost/' + 'myindex_' + abr_algo + '.html'
+url = 'http://128.230.215.188/' + 'myindex_' + abr_algo + '.html'
 
 # timeout signal
 signal.signal(signal.SIGALRM, timeout_handler)
@@ -58,10 +59,11 @@ try:
 		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + exp_id
 	
 	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	# proc = subprocess.Popen(command, shell=True)
 	sleep(2)
 	
 	# to not display the page in browser
-	display = Display(visible=0, size=(800,600))
+	display = Display(visible=1, size=(800,600))
 	display.start()
 	
 	# initialize chrome driver

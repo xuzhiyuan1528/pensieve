@@ -47,6 +47,8 @@ size_video4 = [668286, 611087, 571051, 617681, 652874, 520315, 561791, 709534, 5
 size_video5 = [450283, 398865, 350812, 382355, 411561, 318564, 352642, 437162, 374758, 362795, 353220, 405134, 386351, 434409, 337059, 366214, 360831, 372963, 405596, 350713, 386472, 399894, 401853, 343800, 359903, 379700, 425781, 277716, 400396, 400508, 358218, 400322, 369834, 412837, 401088, 365161, 321064, 361565, 378327, 390680, 345516, 384505, 372093, 438281, 398987, 393804, 331053, 314107, 255954]
 size_video6 = [181801, 155580, 139857, 155432, 163442, 126289, 153295, 173849, 150710, 139105, 141840, 156148, 160746, 179801, 140051, 138313, 143509, 150616, 165384, 140881, 157671, 157812, 163927, 137654, 146754, 153938, 181901, 111155, 153605, 149029, 157421, 157488, 143881, 163444, 179328, 159914, 131610, 124011, 144254, 149991, 147968, 161857, 145210, 172312, 167025, 160064, 137507, 118421, 112270]
 
+np.set_printoptions(linewidth=10000)
+
 def get_chunk_size(quality, index):
     if ( index < 0 or index > 48 ):
         return 0
@@ -64,12 +66,17 @@ def make_request_handler(input_dict):
             self.s_batch = input_dict['s_batch']
             #self.a_batch = input_dict['a_batch']
             #self.r_batch = input_dict['r_batch']
+
+            self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
+
             BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
         def do_POST(self):
             content_length = int(self.headers['Content-Length'])
             post_data = json.loads(self.rfile.read(content_length))
             print post_data
+
+            reward = 0.0
 
             if ( 'pastThroughput' in post_data ):
                 # @Hongzi: this is just the summary of throughput/quality at the end of the load
@@ -112,8 +119,10 @@ def make_request_handler(input_dict):
                 # retrieve previous state
                 if len(self.s_batch) == 0:
                     state = [np.zeros((S_INFO, S_LEN))]
+                    self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
                 else:
                     state = np.array(self.s_batch[-1], copy=True)
+                    self.old_state = np.array(self.s_batch[-1], copy=True)
 
                 # compute bandwidth measurement
                 video_chunk_fetch_time = post_data['lastChunkFinishTime'] - post_data['lastChunkStartTime']
@@ -142,14 +151,14 @@ def make_request_handler(input_dict):
                         state = np.array(self.s_batch[-1], copy=True)
 
                 # log wall_time, bit_rate, buffer_size, rebuffer_time, video_chunk_size, download_time, reward
-                self.log_file.write(str(time.time()) + '\t' +
-                                    str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
-                                    str(post_data['buffer']) + '\t' +
-                                    str(rebuffer_time / M_IN_K) + '\t' +
-                                    str(video_chunk_size) + '\t' +
-                                    str(video_chunk_fetch_time) + '\t' +
-                                    str(reward) + '\n')
-                self.log_file.flush()
+                # self.log_file.write(str(time.time()) + '\t' +
+                #                     str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
+                #                     str(post_data['buffer']) + '\t' +
+                #                     str(rebuffer_time / M_IN_K) + '\t' +
+                #                     str(video_chunk_size) + '\t' +
+                #                     str(video_chunk_fetch_time) + '\t' +
+                #                     str(reward) + '\n')
+                # self.log_file.flush()
 
                 # pick bitrate according to MPC           
                 # first get harmonic mean of last 5 bandwidths
@@ -234,6 +243,16 @@ def make_request_handler(input_dict):
 
                 end = time.time()
                 #print "TOOK: " + str(end-start)
+
+                action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
+                action_prob[int(send_data)] = 1.0
+
+                self.log_file.write('|'.join([str(list(self.old_state.reshape(-1))),
+                                              str(list(action_prob.reshape(-1))),
+                                              str(list(state.reshape(-1))),
+                                              str(reward), str(send_data)]))
+                self.log_file.write('\n')
+                self.log_file.flush()
 
                 end_of_video = False
                 if ( post_data['lastRequest'] == TOTAL_VIDEO_CHUNKS ):

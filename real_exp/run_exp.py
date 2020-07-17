@@ -7,8 +7,10 @@ import numpy as np
 RUN_SCRIPT = 'run_video.py'
 RANDOM_SEED = 42
 RUN_TIME = 280  # sec
-ABR_ALGO = ['fastMPC', 'robustMPC', 'BOLA', 'RL']
-REPEAT_TIME = 10
+# ABR_ALGO = ['fastMPC', 'robustMPC', 'BOLA', 'RL']
+ABR_ALGO = ['fastMPC', 'robustMPC', 'RL']
+# ABR_ALGO = ['RL']
+REPEAT_TIME = 2
 
 
 def main():
@@ -29,11 +31,15 @@ def main():
 							  abr_algo + ' ' + str(RUN_TIME) + ' ' + str(rt)
 					
 					proc = subprocess.Popen(script,
-							  stdout=subprocess.PIPE, 
-							  stderr=subprocess.PIPE, 
+							  stdout=subprocess.PIPE,
+							  stderr=subprocess.PIPE,
 							  shell=True)
 
+					# proc = subprocess.Popen(script,
+					# 		  shell=True)
+
 					(out, err) = proc.communicate()
+					print(out)
 
 					if out == 'done\n':
 						break
