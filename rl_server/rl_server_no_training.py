@@ -70,7 +70,7 @@ def make_request_handler(input_dict):
             self.a_batch = input_dict['a_batch']
             self.r_batch = input_dict['r_batch']
 
-            self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
+            # self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
 
             BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
@@ -122,11 +122,11 @@ def make_request_handler(input_dict):
                 # retrieve previous state
                 if len(self.s_batch) == 0:
                     state = [np.zeros((S_INFO, S_LEN))]
-                    self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
+                    old_state = np.zeros((S_INFO, S_LEN), dtype=np.float64)
                 else:
                     state = np.array(self.s_batch[-1], copy=True)
                     # print(state.dtype)
-                    self.old_state = np.array(self.s_batch[-1], copy=True)
+                    old_state = np.array(self.s_batch[-1], copy=True)
 
                 # compute bandwidth measurement
                 video_chunk_fetch_time = post_data['lastChunkFinishTime'] - post_data['lastChunkStartTime']
@@ -179,7 +179,7 @@ def make_request_handler(input_dict):
                 # send data to html side
                 send_data = str(bit_rate)
 
-                self.log_file.write('|'.join([str(list(self.old_state.reshape(-1))),
+                self.log_file.write('|'.join([str(list(old_state.reshape(-1))),
                                               str(list(action_prob.reshape(-1))),
                                               str(list(state.reshape(-1))),
                                               str(reward), str(send_data)]))

@@ -17,6 +17,7 @@ import itertools
 
 S_INFO = 5  # bit_rate, buffer_size, rebuffering_time, bandwidth_measurement, chunk_til_video_end
 S_LEN = 8  # take how many frames in the past
+A_DIM = 6
 MPC_FUTURE_CHUNK_COUNT = 5
 VIDEO_BIT_RATE = [300,750,1200,1850,2850,4300]  # Kbps
 BITRATE_REWARD = [1, 2, 3, 12, 15, 20]
@@ -67,7 +68,8 @@ def make_request_handler(input_dict):
             #self.a_batch = input_dict['a_batch']
             #self.r_batch = input_dict['r_batch']
 
-            self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
+            self.rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
+            # self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
 
             BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
@@ -119,10 +121,12 @@ def make_request_handler(input_dict):
                 # retrieve previous state
                 if len(self.s_batch) == 0:
                     state = [np.zeros((S_INFO, S_LEN))]
-                    self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
+                    rl_state = [np.zeros((S_INFO + 1, S_LEN))]
+                    old_rl_state = np.zeros((S_INFO + 1, S_LEN), dtype=np.float64)
                 else:
                     state = np.array(self.s_batch[-1], copy=True)
-                    self.old_state = np.array(self.s_batch[-1], copy=True)
+                    rl_state = np.array(self.rl_batch[-1], copy=True)
+                    old_rl_state = np.array(self.rl_batch[-1], copy=True)
 
                 # compute bandwidth measurement
                 video_chunk_fetch_time = post_data['lastChunkFinishTime'] - post_data['lastChunkStartTime']
@@ -134,6 +138,27 @@ def make_request_handler(input_dict):
 
                 # dequeue history record
                 state = np.roll(state, -1, axis=1)
+                rl_state = np.roll(rl_state, -1, axis=1)
+
+                next_video_chunk_sizes = []
+                for i in xrange(A_DIM):
+                    next_video_chunk_sizes.append(get_chunk_size(i, self.input_dict['video_chunk_coount']))
+
+                # generate state for RL
+                try:
+                    rl_state[0, -1] = VIDEO_BIT_RATE[post_data['lastquality']] / float(np.max(VIDEO_BIT_RATE))
+                    rl_state[1, -1] = post_data['buffer'] / BUFFER_NORM_FACTOR
+                    rl_state[2, -1] = float(video_chunk_size) / float(video_chunk_fetch_time) / M_IN_K  # kilo byte / ms
+                    rl_state[3, -1] = float(video_chunk_fetch_time) / M_IN_K / BUFFER_NORM_FACTOR  # 10 sec
+                    rl_state[4, :A_DIM] = np.array(next_video_chunk_sizes) / M_IN_K / M_IN_K  # mega byte
+                    rl_state[5, -1] = np.minimum(video_chunk_remain, CHUNK_TIL_VIDEO_END_CAP) / float(CHUNK_TIL_VIDEO_END_CAP)
+                except ZeroDivisionError:
+                    # this should occur VERY rarely (1 out of 3000), should be a dash issue
+                    # in this case we ignore the observation and roll back to an eariler one
+                    if len(self.s_batch) == 0:
+                        rl_state = [np.zeros((S_INFO+1, S_LEN))]
+                    else:
+                        rl_state = np.array(self.rl_batch[-1], copy=True)
 
                 # this should be S_INFO number of terms
                 try:
@@ -247,9 +272,9 @@ def make_request_handler(input_dict):
                 action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
                 action_prob[int(send_data)] = 1.0
 
-                self.log_file.write('|'.join([str(list(self.old_state.reshape(-1))),
+                self.log_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
                                               str(list(action_prob.reshape(-1))),
-                                              str(list(state.reshape(-1))),
+                                              str(list(rl_state.reshape(-1))),
                                               str(reward), str(send_data)]))
                 self.log_file.write('\n')
                 self.log_file.flush()
@@ -275,8 +300,10 @@ def make_request_handler(input_dict):
 
                 if end_of_video:
                     self.s_batch = [np.zeros((S_INFO, S_LEN))]
+                    self.rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
                 else:
                     self.s_batch.append(state)
+                    self.rl_batch.append(rl_state)
 
         def do_GET(self):
             print >> sys.stderr, 'GOT REQ'
