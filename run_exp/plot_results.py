@@ -202,6 +202,5 @@ def main():
 			ax.legend(SCHEMES_REW, loc=9, bbox_to_anchor=(0.5, -0.1), ncol=int(np.ceil(len(SCHEMES) / 2.0)))
 			plt.show()
 
-
 if __name__ == '__main__':
 	main()

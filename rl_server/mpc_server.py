@@ -33,8 +33,11 @@ TRAIN_SEQ_LEN = 100  # take as a train batch
 MODEL_SAVE_INTERVAL = 100
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-SUMMARY_DIR = './results'
-LOG_FILE = './results/log'
+terminal_index = sys.argv[2]
+SUMMARY_DIR = './results_' + str(terminal_index)
+LOG_FILE = './results_' + str(terminal_index) + '/log'
+# SUMMARY_DIR = './results'
+# LOG_FILE = './results/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 NN_MODEL = None
 
@@ -68,7 +71,7 @@ def make_request_handler(input_dict):
             #self.a_batch = input_dict['a_batch']
             #self.r_batch = input_dict['r_batch']
 
-            self.rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
+            self.rl_batch = input_dict['rl_batch']
             # self.old_state = np.zeros((1, S_INFO, S_LEN), dtype=np.float64)
 
             BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
@@ -76,7 +79,7 @@ def make_request_handler(input_dict):
         def do_POST(self):
             content_length = int(self.headers['Content-Length'])
             post_data = json.loads(self.rfile.read(content_length))
-            print post_data
+            # print post_data
 
             reward = 0.0
 
@@ -123,10 +126,12 @@ def make_request_handler(input_dict):
                     state = [np.zeros((S_INFO, S_LEN))]
                     rl_state = [np.zeros((S_INFO + 1, S_LEN))]
                     old_rl_state = np.zeros((S_INFO + 1, S_LEN), dtype=np.float64)
+                    print("length of s_batch is 0")
                 else:
                     state = np.array(self.s_batch[-1], copy=True)
                     rl_state = np.array(self.rl_batch[-1], copy=True)
                     old_rl_state = np.array(self.rl_batch[-1], copy=True)
+                    print("length of s_batch is not 0")
 
                 # compute bandwidth measurement
                 video_chunk_fetch_time = post_data['lastChunkFinishTime'] - post_data['lastChunkStartTime']
@@ -303,6 +308,7 @@ def make_request_handler(input_dict):
                     self.rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
                 else:
                     self.s_batch.append(state)
+                    # print(rl_state.shape)
                     self.rl_batch.append(rl_state)
 
         def do_GET(self):
@@ -334,6 +340,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
     with open(log_file_path, 'wb') as log_file:
 
         s_batch = [np.zeros((S_INFO, S_LEN))]
+        rl_batch = [np.zeros((S_INFO+1, S_LEN))]
 
         last_bit_rate = DEFAULT_QUALITY
         last_total_rebuf = 0
@@ -346,11 +353,13 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
                       'last_bit_rate': last_bit_rate,
                       'last_total_rebuf': last_total_rebuf,
                       'video_chunk_coount': video_chunk_count,
-                      's_batch': s_batch}
+                      's_batch': s_batch,
+                      'rl_batch': rl_batch}
 
         # interface to abr_rl server
         handler_class = make_request_handler(input_dict=input_dict)
 
+        port += int(terminal_index)
         server_address = ('localhost', port)
         httpd = server_class(server_address, handler_class)
         print 'Listening on port ' + str(port)
@@ -358,7 +367,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
 
 
 def main():
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         trace_file = sys.argv[1]
         run(log_file_path=LOG_FILE + '_fastMPC_' + trace_file)
     else:

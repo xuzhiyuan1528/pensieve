@@ -28,6 +28,7 @@ def timeout_handler(signum, frame):
 abr_algo = sys.argv[1]
 run_time = int(sys.argv[2])
 exp_id = sys.argv[3]
+terminal_index = sys.argv[4]
 
 # ---------------------------------------------------
 # ---- change localhost in url to server address ----
@@ -50,20 +51,20 @@ try:
 	
 	# start abr algorithm server
 	if abr_algo == 'RL':
-		command = 'exec /usr/bin/python ../rl_server/rl_server_no_training.py ' + exp_id
+		command = 'exec /usr/bin/python ../rl_server/rl_server_no_training.py ' + exp_id + ' ' + str(terminal_index)
 	elif abr_algo == 'fastMPC':
-		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + exp_id
+		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + exp_id + ' ' + str(terminal_index)
 	elif abr_algo == 'robustMPC':
-		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + exp_id
+		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + exp_id + ' ' + str(terminal_index)
 	else:
-		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + exp_id
+		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + exp_id + ' ' + str(terminal_index)
 	
 	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	# proc = subprocess.Popen(command, shell=True)
 	sleep(2)
 	
 	# to not display the page in browser
-	display = Display(visible=1, size=(800,600))
+	display = Display(visible=0, size=(800,600))
 	display.start()
 	
 	# initialize chrome driver
