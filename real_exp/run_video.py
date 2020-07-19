@@ -36,7 +36,8 @@ terminal_index = sys.argv[4]
 #          |
 #          v
 # url = 'localhost/' + 'myindex_' + abr_algo + '.html'
-url = 'http://128.230.215.188/' + 'myindex_' + abr_algo + '.html'
+# url = 'http://128.230.215.188/' + 'myindex_' + abr_algo + '.html'
+url = 'http://104.41.166.108/' + 'myindex_' + abr_algo + '.html' #Tokyo
 
 # timeout signal
 signal.signal(signal.SIGALRM, timeout_handler)
@@ -64,7 +65,7 @@ try:
 	sleep(2)
 	
 	# to not display the page in browser
-	display = Display(visible=0, size=(800,600))
+	display = Display(visible=1, size=(800,600))
 	display.start()
 	
 	# initialize chrome driver
@@ -88,7 +89,7 @@ try:
 	proc.send_signal(signal.SIGINT)
 	# proc.kill()
 	
-	print 'done'
+	print str(abr_algo) + ' ' + str(exp_id) + ' done'
 	
 except Exception as e:
 	try: 
