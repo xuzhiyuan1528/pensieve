@@ -38,6 +38,8 @@ terminal_index = sys.argv[4]
 # url = 'localhost/' + 'myindex_' + abr_algo + '.html'
 # url = 'http://128.230.215.188/' + 'myindex_' + abr_algo + '.html'
 url = 'http://104.41.166.108/' + 'myindex_' + abr_algo + '.html' #Tokyo
+if abr_algo == 'Ours':
+	url = 'http://104.41.166.108/' + 'myindex_RL' + '.html'  # Tokyo
 
 # timeout signal
 signal.signal(signal.SIGALRM, timeout_handler)
@@ -57,6 +59,8 @@ try:
 		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + exp_id + ' ' + str(terminal_index)
 	elif abr_algo == 'robustMPC':
 		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + exp_id + ' ' + str(terminal_index)
+	elif abr_algo == 'Ours':
+		command = 'exec /usr/bin/python ../rl_server/abr_our_server.py ' + exp_id + ' ' + str(terminal_index)
 	else:
 		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + exp_id + ' ' + str(terminal_index)
 	
