@@ -9,7 +9,8 @@ RANDOM_SEED = 42
 RUN_TIME = 320 # sec
 # ABR_ALGO = ['fastMPC', 'robustMPC', 'BOLA', 'RL']
 # ABR_ALGO = ['fastMPC', 'robustMPC', 'RL']
-ABR_ALGO = ['Ours']
+# ABR_ALGO = ['Ours']
+ABR_ALGO = ['fastMPC', 'robustMPC']
 REPEAT_TIME = 1000
 
 terminal_index = 0
