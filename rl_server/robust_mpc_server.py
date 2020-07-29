@@ -280,10 +280,10 @@ def make_request_handler(input_dict):
                     # reward = (bitrate_sum) - (4.3*curr_rebuffer_time) - (smoothness_diffs)
 
                     # hd reward
-                    reward = bitrate_sum - (8*curr_rebuffer_time) - (smoothness_diffs)
+                    temp_reward = bitrate_sum - (8*curr_rebuffer_time) - (smoothness_diffs)
 
-                    if ( reward > max_reward ):
-                        max_reward = reward
+                    if ( temp_reward > max_reward ):
+                        max_reward = temp_reward
                         best_combo = combo
                 # send data to html side (first chunk of best combo)
                 send_data = 0 # no combo had reward better than -1000000 (ERROR) so send 0
