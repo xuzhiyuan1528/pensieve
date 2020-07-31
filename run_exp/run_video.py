@@ -31,12 +31,14 @@ run_time = int(sys.argv[3])
 process_id = sys.argv[4]
 trace_file = sys.argv[5]
 sleep_time = sys.argv[6]
-	
+rt = sys.argv[7]
+
 # prevent multiple process from being synchronized
 sleep(int(sleep_time))
 	
 # generate url
 url = 'http://' + ip + '/' + 'myindex_' + abr_algo + '.html'
+print(url)
 
 # timeout signal
 signal.signal(signal.SIGALRM, timeout_handler)
@@ -51,13 +53,13 @@ try:
 	
 	# start abr algorithm server
 	if abr_algo == 'RL':
-		command = 'exec /usr/bin/python ../rl_server/rl_server_no_training.py ' + trace_file
+		command = 'exec /usr/bin/python ../rl_server/rl_server_no_training.py ' + trace_file + '_' + str(rt)
 	elif abr_algo == 'fastMPC':
-		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + trace_file
+		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + trace_file + '_' + str(rt)
 	elif abr_algo == 'robustMPC':
-		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + trace_file
+		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + trace_file + '_' + str(rt)
 	else:
-		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + trace_file
+		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + trace_file + '_' + str(rt)
 	
 	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	sleep(2)
@@ -71,6 +73,7 @@ try:
 	chrome_driver = '../abr_browser_dir/chromedriver'
 	options.add_argument('--user-data-dir=' + chrome_user_dir)
 	options.add_argument('--ignore-certificate-errors')
+	options.add_argument('--autoplay-policy=no-user-gesture-required')
 	driver=webdriver.Chrome(chrome_driver, chrome_options=options)
 	
 	# run chrome
@@ -86,8 +89,9 @@ try:
 	proc.send_signal(signal.SIGINT)
 	# proc.kill()
 	
-	print 'done'
-	
+	# print 'done'
+	print str(abr_algo) + ' ' + str(trace_file) + ' done'
+
 except Exception as e:
 	try: 
 		display.stop()

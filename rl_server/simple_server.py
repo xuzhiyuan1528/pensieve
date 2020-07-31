@@ -28,11 +28,11 @@ DEFAULT_QUALITY = 0  # default video quality without agent
 REBUF_PENALTY = 4.3  # 1 sec rebuffering -> this number of Mbps
 SMOOTH_PENALTY = 1
 TOTAL_VIDEO_CHUNKS = 48
-terminal_index = sys.argv[3]
-SUMMARY_DIR = './results_' + str(terminal_index)
-LOG_FILE = './results_' + str(terminal_index) + '/log'
-# SUMMARY_DIR = './results'
-# LOG_FILE = './results/log'
+# terminal_index = sys.argv[3]
+# SUMMARY_DIR = './results_' + str(terminal_index)
+# LOG_FILE = './results_' + str(terminal_index) + '/log'
+SUMMARY_DIR = './results'
+LOG_FILE = './results/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 
 past_bandwidth_ests = []

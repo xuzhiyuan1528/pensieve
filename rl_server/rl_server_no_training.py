@@ -33,9 +33,11 @@ TRAIN_SEQ_LEN = 100  # take as a train batch
 MODEL_SAVE_INTERVAL = 100
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-terminal_index = sys.argv[2]
-SUMMARY_DIR = './results_' + str(terminal_index)
-LOG_FILE = './results_' + str(terminal_index) + '/log'
+# terminal_index = sys.argv[2]
+# SUMMARY_DIR = './results_' + str(terminal_index)
+# LOG_FILE = './results_' + str(terminal_index) + '/log'
+SUMMARY_DIR = './results'
+LOG_FILE = './results/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 # NN_MODEL = None
 NN_MODEL = '../rl_server/results/pretrain_linear_reward.ckpt'
@@ -280,7 +282,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
         # interface to abr_rl server
         handler_class = make_request_handler(input_dict=input_dict)
 
-        port += int(terminal_index)
+        # port += int(terminal_index)
         server_address = ('localhost', port)
         httpd = server_class(server_address, handler_class)
         print 'Listening on port ' + str(port)

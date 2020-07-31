@@ -9,6 +9,8 @@ RANDOM_SEED = 42
 RUN_TIME = 320  # sec
 MM_DELAY = 40   # millisec
 
+# TRACE_PATH = '../pantheon_traces/'
+REPEAT_TIME = 1000
 
 def main():
 	trace_path = sys.argv[1]
@@ -19,29 +21,66 @@ def main():
 	sleep_vec = range(1, 10)  # random sleep second
 
 	files = os.listdir(trace_path)
-	for f in files:
 
-		while True:
+	for rt in xrange(REPEAT_TIME):
+		for f in files:
 
-			np.random.shuffle(sleep_vec)
-			sleep_time = sleep_vec[int(process_id)]
-			
-			proc = subprocess.Popen('mm-delay ' + str(MM_DELAY) + 
-					  ' mm-link 12mbps ' + trace_path + f + ' ' +
-					  '/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' +
-					  abr_algo + ' ' + str(RUN_TIME) + ' ' +
-					  process_id + ' ' + f + ' ' + str(sleep_time),
-					  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			if f.find('3.04mbps-poisson') < 0:
+				continue
 
-			(out, err) = proc.communicate()
+			while True:
 
-			if out == 'done\n':
-				break
-			else:
-				with open('./chrome_retry_log', 'ab') as log:
-					log.write(abr_algo + '_' + f + '\n')
-					log.write(out + '\n')
-					log.flush()
+				np.random.shuffle(sleep_vec)
+				sleep_time = sleep_vec[int(process_id)]
+
+				# 3.04
+				script = 'mm-delay 130' + ' mm-link ' + trace_path + f + ' ' + trace_path + f + \
+						 ' --uplink-queue=droptail --uplink-queue-args=packets=426' + \
+						 ' /usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
+						 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
+						 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt)
+				print(script)
+
+				# '12mbps.trace'
+				# script = 'mm-delay 30' + ' mm-link ' + trace_path + f + ' ' + trace_path + f + \
+				# 		 ' --uplink-queue=droptail --uplink-queue-args=bytes=90000' + \
+				# 		 ' /usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
+				# 		 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
+				# 		 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt)
+				# print(script)
+
+				proc = subprocess.Popen(script,
+										stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+				# proc = subprocess.Popen('mm-delay ' + str(MM_DELAY) +
+				# 		  ' mm-link 12mbps ' + trace_path + f + ' ' +
+				# 		  '/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' +
+				# 		  abr_algo + ' ' + str(RUN_TIME) + ' ' +
+				# 		  process_id + ' ' + f + ' ' + str(sleep_time),
+				# 		  stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+				# script = 'mm-delay ' + str(MM_DELAY) + \
+				# 		 ' mm-link 12mbps ' + trace_path + f + ' '
+				# print(script)
+				# proc = subprocess.Popen('mm-delay ' + str(MM_DELAY) +
+				# 						' mm-link 12mbps ' + trace_path + f + ' ' +
+				# 						'/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' +
+				# 						abr_algo + ' ' + str(RUN_TIME) + ' ' +
+				# 						process_id + ' ' + f + ' ' + str(sleep_time),
+				# 						shell=True)
+
+				(out, err) = proc.communicate()
+				print(out)
+				if out is None:
+					out = " none"
+
+				if out.find('done') >= 0:
+					break
+				else:
+					with open('./chrome_retry_log', 'ab') as log:
+						log.write(abr_algo + '_' + f + '\n')
+						log.write(out + '\n')
+						log.flush()
 
 
 
