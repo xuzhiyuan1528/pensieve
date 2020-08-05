@@ -17,7 +17,7 @@ os.system('sudo sysctl -w net.ipv4.ip_forward=1')
 TRACE_PATH = '../norway_part_traces/'
 
 ip = '192.168.0.136'
-REPEAT_TIME = 1000
+REPEAT_TIME = 5
 
 def main():
 	# trace_path = sys.argv[1]
@@ -80,8 +80,10 @@ def main():
 							 ' mm-link 12mbps ' + trace_path + f + ' ' + \
 							 '/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
 							 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
-							 process_id + ' ' + f + ' ' + str(sleep_time),
+							 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt),
 					print(script)
+
+					# proc = subprocess.Popen(script, shell=True)
 					proc = subprocess.Popen(script,
 											stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 
