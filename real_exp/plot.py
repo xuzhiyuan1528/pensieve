@@ -2,7 +2,6 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def deal_with_pensieve(fname):
     state = []
     action = []
@@ -33,7 +32,10 @@ def deal_with_pensieve(fname):
 # base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/Pensieve_Tokyo_MPC_BOLA_320s'
 # base_dir = '/home/cst/wk/Pensieve/data/results_0'
 # base_dir = '/home/cst/wk/Pensieve/data/results_loss50'
-base_dir = '/home/cst/wk/Pensieve/pensieve/run_exp/results'
+# base_dir = '/home/cst/wk/Pensieve/pensieve/run_exp/results'
+base_dir = '/home/cst/wk/Pensieve/data/results_304mbps_20200801'
+# base_dir = '/home/cst/wk/Pensieve/data/results_7772mbps_20200802'
+
 results = {
     'BOLA': [],
     'fastMPC': [],
@@ -57,6 +59,9 @@ for fname in os.listdir(base_dir):
     if fname.find('3.04mbps-poisson') < 0:
         continue
 
+    # if fname.find('77.72mbps') < 0:
+    #     continue
+
     algo_name  = fname.split('_')[1]
 
     state, action, reward, nxstate, notdone = deal_with_pensieve(fname)
@@ -66,6 +71,7 @@ for fname in os.listdir(base_dir):
 
 # print(f'reward {results}')
 
+print('\n'.join("{}: {}".format(k, len(v)) for k, v in results.items()))
 print('\n'.join("{}: {}".format(k, v) for k, v in results.items()))
 
 alg = 'robustMPC'

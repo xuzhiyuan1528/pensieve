@@ -2,18 +2,18 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-RESULTS_FOLDER = './results/'
+RESULTS_FOLDER = './results_ori/'
+# RESULTS_FOLDER = '/home/cst/wk/Pensieve/data/results_304mbps_20200801/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
 MILLISEC_IN_SEC = 1000.0
 M_IN_B = 1000000.0
-VIDEO_LEN = 64
+VIDEO_LEN = 30 #64
 VIDEO_BIT_RATE = [350, 600, 1000, 2000, 3000]
 COLOR_MAP = plt.cm.jet #nipy_spectral, Set1,Paired 
 SIM_DP = 'sim_dp'
-SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
-
+# SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
+SCHEMES = ['fastMPC', 'robustMPC', 'BOLA', 'RL']
 
 def main():
 	time_all = {}
@@ -60,7 +60,8 @@ def main():
 					time_ms.append(float(parse[0]))
 					bit_rate.append(int(parse[1]))
 					buff.append(float(parse[2]))
-					bw.append(float(parse[4]) / float(parse[5]) * BITS_IN_BYTE * MILLISEC_IN_SEC / M_IN_B)
+					bw.append(float(parse[4]) / float(parse[5]) *
+							  BITS_IN_BYTE * MILLISEC_IN_SEC / M_IN_B)
 					reward.append(float(parse[6]))
 
 		if SIM_DP in log_file:
