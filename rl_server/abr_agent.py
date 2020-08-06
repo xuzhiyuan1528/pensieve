@@ -6,6 +6,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import os
 
+S_INFO = 6  # bit_rate, buffer_size, rebuffering_time, bandwidth_measurement, chunk_til_video_end
+S_LEN = 8  # take how many frames in the past
+A_DIM = 6
+
 class LSTM_ABR(nn.Module):
     def __init__(self, state_dim, num_actions):
         super(LSTM_ABR, self).__init__()
@@ -67,10 +71,6 @@ class LSTM_ABR(nn.Module):
 
         return self.q2(q), F.log_softmax(i, dim=1), i
 
-S_INFO = 6  # bit_rate, buffer_size, rebuffering_time, bandwidth_measurement, chunk_til_video_end
-S_LEN = 8  # take how many frames in the past
-A_DIM = 6
-
 def process_state(states):
     if type(states) is not torch.Tensor:
         states = np.array(states)
@@ -91,10 +91,12 @@ def process_state(states):
 
 
 class discrete_BCQ(object):
-    def __init__(self, fpath):
+    def __init__(self):
+        fpath = '/home/eric/Data/drl-il/06120523-sNone/mod/bcq_27233_Q'
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        state_dim = 48
-        num_actions = 6
+        state_dim = S_INFO * S_LEN
+        num_actions = A_DIM
 
         self.Q = LSTM_ABR(state_dim, num_actions).to(self.device)
 
@@ -122,7 +124,7 @@ class discrete_BCQ(object):
 
 if __name__ == '__main__':
     import numpy as np
-    model = discrete_BCQ('./bcq_model.pt')
+    model = discrete_BCQ()
     state = np.random.random(48)
     action = model.select_action(state)
     print('select action', action)

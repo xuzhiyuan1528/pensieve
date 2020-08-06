@@ -40,14 +40,6 @@ LOG_FILE = './results/log'
 # NN_MODEL = None
 # NN_MODEL = '../rl_server/results/pretrain_linear_reward.ckpt'
 # NN_MODEL = '../rl_server/bcq_model.pt'
-# NN_MODEL = '/home/eric/Data/drl-il/04140530-sNone/mod/bcq_109000_Q'
-# NN_MODEL = '/home/eric/Data/drl-il/04153124-sNone/mod/bcq_64000_Q'
-# NN_MODEL = '/home/eric/Data/drl-il/04153124-sNone/mod/bcq_136169_Q'
-
-# NN_MODEL = '/home/eric/Data/drl-il/04210226-sNone/mod/bcq_28000_Q'
-# NN_MODEL = '/home/eric/Data/drl-il/05220016-sNone/mod/bcq_26000_Q'
-NN_MODEL = '/home/eric/Data/drl-il/06120523-sNone/mod/bcq_27233_Q'
-
 
 # video chunk sizes
 size_video1 = [2354772, 2123065, 2177073, 2160877, 2233056, 1941625, 2157535, 2290172, 2055469, 2169201, 2173522, 2102452, 2209463, 2275376, 2005399, 2152483, 2289689, 2059512, 2220726, 2156729, 2039773, 2176469, 2221506, 2044075, 2186790, 2105231, 2395588, 1972048, 2134614, 2164140, 2113193, 2147852, 2191074, 2286761, 2307787, 2143948, 1919781, 2147467, 2133870, 2146120, 2108491, 2184571, 2121928, 2219102, 2124950, 2246506, 1961140, 2155012, 1433658]
@@ -256,13 +248,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
     with open(log_file_path, 'wb') as log_file:
         # the_file.write('Hello\n')
 
-        nn_model = NN_MODEL
-        if nn_model is not None:  # nn_model is the path to file
-            model = abr_agent.discrete_BCQ(nn_model)
-            print("Model restored.")
-        else:
-            model = None
-            print("Cant find pre-trained model.")
+        model = abr_agent.discrete_BCQ()
 
         init_action = np.zeros(A_DIM)
         init_action[DEFAULT_QUALITY] = 1
