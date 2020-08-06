@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import time
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
 import base64
@@ -9,9 +10,6 @@ import json
 os.environ['CUDA_VISIBLE_DEVICES']=''
 
 import numpy as np
-import tensorflow as tf
-import time
-import a3c
 import abr_agent
 
 S_INFO = 6  # bit_rate, buffer_size, rebuffering_time, bandwidth_measurement, chunk_til_video_end
@@ -33,13 +31,22 @@ TRAIN_SEQ_LEN = 100  # take as a train batch
 MODEL_SAVE_INTERVAL = 100
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-terminal_index = sys.argv[2]
-SUMMARY_DIR = './results_' + str(terminal_index)
-LOG_FILE = './results_' + str(terminal_index) + '/log'
+# terminal_index = sys.argv[2]
+# SUMMARY_DIR = './results_' + str(terminal_index)
+# LOG_FILE = './results_' + str(terminal_index) + '/log'
+SUMMARY_DIR = './results'
+LOG_FILE = './results/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 # NN_MODEL = None
 # NN_MODEL = '../rl_server/results/pretrain_linear_reward.ckpt'
-NN_MODEL = '../rl_server/bcq_model.pt'
+# NN_MODEL = '../rl_server/bcq_model.pt'
+# NN_MODEL = '/home/eric/Data/drl-il/04140530-sNone/mod/bcq_109000_Q'
+# NN_MODEL = '/home/eric/Data/drl-il/04153124-sNone/mod/bcq_64000_Q'
+# NN_MODEL = '/home/eric/Data/drl-il/04153124-sNone/mod/bcq_136169_Q'
+
+# NN_MODEL = '/home/eric/Data/drl-il/04210226-sNone/mod/bcq_28000_Q'
+# NN_MODEL = '/home/eric/Data/drl-il/05220016-sNone/mod/bcq_26000_Q'
+NN_MODEL = '/home/eric/Data/drl-il/06120523-sNone/mod/bcq_27233_Q'
 
 
 # video chunk sizes
@@ -175,7 +182,9 @@ def make_request_handler(input_dict):
                 # self.log_file.flush()
 
                 # action_prob = self.actor.predict(np.reshape(state, (1, S_INFO, S_LEN)))
+                btime = time.time()
                 bit_rate = self.model.select_action(np.reshape(state, (-1)))
+                print('time cost', time.time()-btime, 'reward', reward)
                 # print(action_prob.size())
                 # print(bit_rate)
                 # action_cumsum = np.cumsum(action_prob)
@@ -292,7 +301,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
 def main():
     if len(sys.argv) >= 2:
         trace_file = sys.argv[1]
-        run(log_file_path=LOG_FILE + '_Our_' + trace_file)
+        run(log_file_path=LOG_FILE + '_Ours_' + trace_file)
     else:
         run()
 
