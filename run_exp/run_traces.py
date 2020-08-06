@@ -17,7 +17,7 @@ os.system('sudo sysctl -w net.ipv4.ip_forward=1')
 TRACE_PATH = '../norway_part_traces/'
 
 ip = '192.168.0.136'
-REPEAT_TIME = 5
+REPEAT_TIME = 1
 
 def main():
 	# trace_path = sys.argv[1]
@@ -32,11 +32,12 @@ def main():
 
 	for rt in xrange(REPEAT_TIME):
 
-		for process_id, abr_algo in enumerate(ABR_ALGO):
+		for f in files:
+			for process_id, abr_algo in enumerate(ABR_ALGO):
 
-			process_id = str(process_id)
+				process_id = str(process_id)
 
-			for f in files:
+			# for f in files:
 
 				# if f.find('77.72mbps') < 0:
 				# 	continue

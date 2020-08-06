@@ -36,6 +36,9 @@ RAND_RANGE = 1000
 # LOG_FILE = './results_' + str(terminal_index) + '/log'
 SUMMARY_DIR = './results'
 LOG_FILE = './results/log'
+
+ORI_SUMMARY_DIR = './results_ori'
+ORI_LOG_FILE = './results_ori/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 # NN_MODEL = None
 # NN_MODEL = '../rl_server/results/pretrain_linear_reward.ckpt'
@@ -65,6 +68,7 @@ def make_request_handler(input_dict):
             self.input_dict = input_dict
             # self.sess = input_dict['sess']
             self.log_file = input_dict['log_file']
+            self.ori_log_file = input_dict['ori_log_file']
             # self.actor = input_dict['actor']
             # self.critic = input_dict['critic']
             # self.saver = input_dict['saver']
@@ -163,15 +167,15 @@ def make_request_handler(input_dict):
                         state = np.array(self.s_batch[-1], copy=True)
 
                 # log wall_time, bit_rate, buffer_size, rebuffer_time, video_chunk_size, download_time, reward
-                # self.log_file.write(str(time.time()) + '\t' +
-                #                     str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
-                #                     str(post_data['buffer']) + '\t' +
-                #                     str(rebuffer_time / M_IN_K) + '\t' +
-                #                     str(video_chunk_size) + '\t' +
-                #                     str(video_chunk_fetch_time) + '\t' +
-                #                     str(reward) + '\n')
+                self.ori_log_file.write(str(time.time()) + '\t' +
+                                    str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
+                                    str(post_data['buffer']) + '\t' +
+                                    str(rebuffer_time / M_IN_K) + '\t' +
+                                    str(video_chunk_size) + '\t' +
+                                    str(video_chunk_fetch_time) + '\t' +
+                                    str(reward) + '\n')
 
-                # self.log_file.flush()
+                self.ori_log_file.flush()
 
                 # action_prob = self.actor.predict(np.reshape(state, (1, S_INFO, S_LEN)))
                 btime = time.time()
@@ -205,6 +209,7 @@ def make_request_handler(input_dict):
                     self.input_dict['last_bit_rate'] = DEFAULT_QUALITY
                     self.input_dict['video_chunk_coount'] = 0
                     self.log_file.write('\n')  # so that in the log we know where video ends
+                    self.ori_log_file.write('\n')
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
@@ -236,7 +241,7 @@ def make_request_handler(input_dict):
     return Request_Handler
 
 
-def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
+def run(server_class=HTTPServer, port=8333, log_file_path_suffix=""):
 
     np.random.seed(RANDOM_SEED)
 
@@ -245,7 +250,13 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
     if not os.path.exists(SUMMARY_DIR):
         os.makedirs(SUMMARY_DIR)
 
-    with open(log_file_path, 'wb') as log_file:
+    if not os.path.exists(ORI_SUMMARY_DIR):
+        os.makedirs(ORI_SUMMARY_DIR)
+
+    log_file_path = LOG_FILE + log_file_path_suffix
+    ori_log_file_path = ORI_LOG_FILE + log_file_path_suffix
+
+    with open(log_file_path, 'wb') as log_file, open(ori_log_file_path, 'wb') as ori_log_file:
         # the_file.write('Hello\n')
 
         model = abr_agent.discrete_BCQ()
@@ -267,6 +278,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
         video_chunk_count = 0
 
         input_dict = {'log_file': log_file,
+                      'ori_log_file': ori_log_file,
                       'model': model,
                       'train_counter': train_counter,
                       'last_bit_rate': last_bit_rate,
@@ -287,7 +299,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
 def main():
     if len(sys.argv) >= 2:
         trace_file = sys.argv[1]
-        run(log_file_path=LOG_FILE + '_Ours_' + trace_file)
+        run(log_file_path_suffix='_Ours_' + trace_file)
     else:
         run()
 
