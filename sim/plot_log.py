@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 LOG_PATH = './results/log'
 PLOT_SAMPLES = 300
 
-
 time_stamp = []
 bit_rates = []
 buffer_occupancies = []

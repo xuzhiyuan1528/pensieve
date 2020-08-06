@@ -38,6 +38,9 @@ RAND_RANGE = 1000
 # LOG_FILE = './results_' + str(terminal_index) + '/log'
 SUMMARY_DIR = './results'
 LOG_FILE = './results/log'
+
+ORI_SUMMARY_DIR = './results_ori'
+ORI_LOG_FILE = './results_ori/log'
 # in format of time_stamp bit_rate buffer_size rebuffer_time video_chunk_size download_time reward
 NN_MODEL = None
 
@@ -70,6 +73,7 @@ def make_request_handler(input_dict):
         def __init__(self, *args, **kwargs):
             self.input_dict = input_dict
             self.log_file = input_dict['log_file']
+            self.ori_log_file = input_dict['ori_log_file']
             #self.saver = input_dict['saver']
             self.s_batch = input_dict['s_batch']
             #self.a_batch = input_dict['a_batch']
@@ -190,14 +194,14 @@ def make_request_handler(input_dict):
                         state = np.array(self.s_batch[-1], copy=True)
 
                 # log wall_time, bit_rate, buffer_size, rebuffer_time, video_chunk_size, download_time, reward
-                # self.log_file.write(str(time.time()) + '\t' +
-                #                     str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
-                #                     str(post_data['buffer']) + '\t' +
-                #                     str(rebuffer_time / M_IN_K) + '\t' +
-                #                     str(video_chunk_size) + '\t' +
-                #                     str(video_chunk_fetch_time) + '\t' +
-                #                     str(reward) + '\n')
-                # self.log_file.flush()
+                self.ori_log_file.write(str(time.time()) + '\t' +
+                                    str(VIDEO_BIT_RATE[post_data['lastquality']]) + '\t' +
+                                    str(post_data['buffer']) + '\t' +
+                                    str(rebuffer_time / M_IN_K) + '\t' +
+                                    str(video_chunk_size) + '\t' +
+                                    str(video_chunk_fetch_time) + '\t' +
+                                    str(reward) + '\n')
+                self.ori_log_file.flush()
 
                 # pick bitrate according to MPC           
                 # first get harmonic mean of last 5 bandwidths
@@ -312,6 +316,7 @@ def make_request_handler(input_dict):
                     self.input_dict['last_bit_rate'] = DEFAULT_QUALITY
                     self.input_dict['video_chunk_coount'] = 0
                     self.log_file.write('\n')  # so that in the log we know where video ends
+                    self.ori_log_file.write('\n')
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
@@ -346,18 +351,24 @@ def make_request_handler(input_dict):
     return Request_Handler
 
 
-def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
+def run(server_class=HTTPServer, port=8333, log_file_path_suffix=""):
 
     np.random.seed(RANDOM_SEED)
 
     if not os.path.exists(SUMMARY_DIR):
         os.makedirs(SUMMARY_DIR)
 
+    if not os.path.exists(ORI_SUMMARY_DIR):
+        os.makedirs(ORI_SUMMARY_DIR)
+
+    log_file_path = LOG_FILE + log_file_path_suffix
+    ori_log_file_path = ORI_LOG_FILE + log_file_path_suffix
+
     # make chunk combination options
     for combo in itertools.product([0,1,2,3,4,5], repeat=5):
         CHUNK_COMBO_OPTIONS.append(combo)
 
-    with open(log_file_path, 'wb') as log_file:
+    with open(log_file_path, 'wb') as log_file, open(ori_log_file_path, 'wb') as ori_log_file:
 
         s_batch = [np.zeros((S_INFO, S_LEN))]
         rl_batch = [np.zeros((S_INFO+1, S_LEN))]
@@ -370,6 +381,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
         video_chunk_count = 0
 
         input_dict = {'log_file': log_file,
+                      'ori_log_file': ori_log_file,
                       'last_bit_rate': last_bit_rate,
                       'last_total_rebuf': last_total_rebuf,
                       'video_chunk_coount': video_chunk_count,
@@ -389,7 +401,7 @@ def run(server_class=HTTPServer, port=8333, log_file_path=LOG_FILE):
 def main():
     if len(sys.argv) >= 2:
         trace_file = sys.argv[1]
-        run(log_file_path=LOG_FILE + '_robustMPC_' + trace_file)
+        run(log_file_path_suffix='_robustMPC_' + trace_file)
     else:
         run()
 
