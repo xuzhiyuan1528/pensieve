@@ -14,7 +14,7 @@
 #include <cassert>
 #include <unordered_map>
 #include <cmath>
-
+#include <filesystem>
 
 float MILLISECONDS_IN_SECOND = 1000;
 float B_IN_MB = 1000000;
@@ -35,10 +35,17 @@ unsigned int MAX_QUALITY = 5;
 float REBUF_PENALTY = 4.3;  // 1 sec rebuffering -> 3 Mbps
 int SMOOTH_PENALTY = 1;
 float INVALID_DOWNLOAD_TIME = -1;
-std::string COOKED_TRACE_FOLDER = "./cooked_traces/";
-std::string OUTPUT_FILE_PATH = "./results/log_sim_dp";
+std::string COOKED_TRACE_FOLDER = "./test_sim_traces/";
+std::string OUTPUT_FILE_DIR = "./results";
+std::string OUTPUT_FILE_PATH = "./results/log_simdp";
+std::string ORI_OUTPUT_FILE_DIR = "./results_ori";
+std::string ORI_OUTPUT_FILE_PATH = "./results_ori/log_simdp";
 std::string VIDEO_SIZE_FILE = "./video_size_";
+std::string log_suffix = "_0";
 
+int S_INFO = 6;  // bit_rate, buffer_size, next_chunk_size, bandwidth_measurement(throughput and time), chunk_til_video_end
+int S_LEN = 8;  // take how many frames in the past
+int A_DIM = 6;
 
 struct ALL_COOKED_TIME_BW {
 	std::vector<std::vector<float> > all_cooked_time;
@@ -263,12 +270,15 @@ bool found_in(
 }
 
 int main() {
+    std::filesystem::create_directory(OUTPUT_FILE_DIR);
+    std::filesystem::create_directory(ORI_OUTPUT_FILE_DIR);
 
 	ALL_COOKED_TIME_BW all_cooked_time_bw = \
 		get_all_cooked_time_bw(COOKED_TRACE_FOLDER);
 	std::vector<std::vector<unsigned int> > video_sizes = \
 		get_video_sizes(VIDEO_SIZE_FILE);
 
+    std::ofstream ori_log_file;
 	std::ofstream log_file;
 
 	assert(all_cooked_time_bw.all_cooked_time.size() == \
@@ -282,7 +292,8 @@ int main() {
 
 		std::vector<float> cooked_time = all_cooked_time_bw.all_cooked_time[trace_idx];
 		std::vector<float> cooked_bw = all_cooked_time_bw.all_cooked_bw[trace_idx];
-		log_file.open (OUTPUT_FILE_PATH + "_" + all_cooked_time_bw.all_file_names[trace_idx]);
+		ori_log_file.open(OUTPUT_FILE_PATH + "_" + all_cooked_time_bw.all_file_names[trace_idx] + log_suffix);
+		log_file.open(OUTPUT_FILE_PATH + "_" + all_cooked_time_bw.all_file_names[trace_idx] + log_suffix);
 
 		// -----------------------------------------
 		// step 1: quantize the time and bandwidth
@@ -503,9 +514,9 @@ int main() {
 		}
 
 		std::ofstream output;
-		log_file << optimal_total_reward << '\n';
+		ori_log_file << optimal_total_reward << '\n';
 
-		log_file << TOTAL_VIDEO_CHUNCK - 1 << '\t' \
+		ori_log_file << TOTAL_VIDEO_CHUNCK - 1 << '\t' \
 				 << last_time_idx << '\t' \
 				 << last_buff_idx << '\t' \
 				 << quan_time[last_time_idx] << '\t' \
@@ -515,7 +526,7 @@ int main() {
 
 		while (dp_pt.chunk_idx != 0 || dp_pt.time_idx != 0 ||
 			dp_pt.buffer_idx != 0 || dp_pt.bit_rate != 0) {
-			log_file << dp_pt.chunk_idx << '\t' \
+			ori_log_file << dp_pt.chunk_idx << '\t' \
 					 << dp_pt.time_idx << '\t' \
 					 << dp_pt.buffer_idx << '\t' \
 					 << quan_time[dp_pt.time_idx] << '\t' \
@@ -526,8 +537,8 @@ int main() {
 				last_dp_pt, dp_pt.chunk_idx, dp_pt.time_idx,
 				dp_pt.buffer_idx, dp_pt.bit_rate);
 		}
-		log_file << '\n';
-		log_file.close();
+		ori_log_file << '\n';
+		ori_log_file.close();
 
 	} // end of traces loop
 
