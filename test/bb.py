@@ -21,7 +21,9 @@ RESEVOIR = 5  # BB
 CUSHION = 10  # BB
 TRACE_DIR = './cooked_traces-x-3G/'
 SUMMARY_DIR = './gen-logs-3G'
+TRANS_DIR = './gen-traces-3G'
 LOG_FILE = SUMMARY_DIR + '/log_sim_bb'
+TRANS_FILE = TRANS_DIR + '/trace_sim_bb'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 
 repeat_time = 1
@@ -44,28 +46,25 @@ def get_chunk_size(quality, index):
     return sizes[quality]
 
 def main(log_suffix):
-
+    run_id = '0'
     np.random.seed(RANDOM_SEED)
 
     assert len(VIDEO_BIT_RATE) == A_DIM
 
     if not os.path.exists(SUMMARY_DIR):
         os.makedirs(SUMMARY_DIR)
+    if not os.path.exists(TRANS_DIR):
+        os.makedirs(TRANS_DIR)
 
-    if not os.path.exists(ORI_SUMMARY_DIR):
-        os.makedirs(ORI_SUMMARY_DIR)
-
-    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace()
     all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(TRACE_DIR)
 
     net_env = env.Environment(all_cooked_time=all_cooked_time,
                               all_cooked_bw=all_cooked_bw)
 
-    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(log_suffix)
+    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
     log_file = open(log_path, 'wb')
-
-    ori_log_path = ORI_LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(log_suffix)
-    ori_log_file = open(ori_log_path, 'wb')
+    trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+    trans_file = open(trans_path, 'wb')
 
     epoch = 0
     time_stamp = 0
@@ -138,14 +137,14 @@ def main(log_suffix):
         last_bit_rate = bit_rate
 
         # log time_stamp, bit_rate, buffer_size, reward
-        ori_log_file.write(str(time_stamp / M_IN_K) + '\t' +
+        log_file.write(str(time_stamp / M_IN_K) + '\t' +
                        str(VIDEO_BIT_RATE[bit_rate]) + '\t' +
                        str(buffer_size) + '\t' +
                        str(rebuf) + '\t' +
                        str(video_chunk_size) + '\t' +
                        str(delay) + '\t' +
                        str(reward) + '\n')
-        ori_log_file.flush()
+        log_file.flush()
 
         if buffer_size < RESEVOIR:
             bit_rate = 0
@@ -159,12 +158,12 @@ def main(log_suffix):
         action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
         action_prob[bit_rate] = 1.0
 
-        log_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
+        trans_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
                                       str(list(action_prob.reshape(-1))),
                                       str(list(rl_state.reshape(-1))),
                                       str(reward), str(bit_rate)]))
-        log_file.write('\n')
-        log_file.flush()
+        trans_file.write('\n')
+        trans_file.flush()
 
         if end_of_video:
             rl_batch = [np.zeros((S_INFO, S_LEN))]
@@ -172,8 +171,8 @@ def main(log_suffix):
             rl_batch.append(rl_state)
 
         if end_of_video:
-            ori_log_file.write('\n')
-            ori_log_file.close()
+            trans_file.write('\n')
+            trans_file.close()
 
             log_file.write('\n')
             log_file.close()
@@ -188,11 +187,10 @@ def main(log_suffix):
             if video_count > len(all_file_names):
                 break
 
-            log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(log_suffix)
+            log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
             log_file = open(log_path, 'wb')
-
-            ori_log_path = ORI_LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(log_suffix)
-            ori_log_file = open(ori_log_path, 'wb')
+            trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+            trans_file = open(trans_path, 'wb')
 
 
 if __name__ == '__main__':

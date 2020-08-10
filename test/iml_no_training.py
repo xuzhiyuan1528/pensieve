@@ -20,9 +20,9 @@ SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-TRACE_DIR = './cooked_traces/'
-SUMMARY_DIR = './gen-logs'
-TRANS_DIR = './gen-traces'
+TRACE_DIR = './cooked_traces-x-3G/'
+SUMMARY_DIR = './gen-logs-3G'
+TRANS_DIR = './gen-traces-3G'
 LOG_FILE = SUMMARY_DIR + '/log_sim_iml'
 TRANS_FILE = TRANS_DIR + '/trace_sim_iml'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward

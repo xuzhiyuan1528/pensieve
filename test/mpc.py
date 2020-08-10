@@ -294,12 +294,12 @@ def main():
         action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
         action_prob[int(bit_rate)] = 1.0
 
-        log_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
+        trans_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
                                  str(list(action_prob.reshape(-1))),
                                  str(list(rl_state.reshape(-1))),
                                  str(reward), str(bit_rate)]))
-        log_file.write('\n')
-        log_file.flush()
+        trans_file.write('\n')
+        trans_file.flush()
 
         s_batch.append(state)
 
@@ -309,8 +309,8 @@ def main():
             rl_batch.append(rl_state)
 
         if end_of_video:
-            ori_log_file.write('\n')
-            ori_log_file.close()
+            trans_file.write('\n')
+            trans_file.close()
 
             log_file.write('\n')
             log_file.close()

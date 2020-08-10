@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-RESULTS_FOLDER = './gen-logs/'
+RESULTS_FOLDER = './gen-logs-3G/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
 MILLISEC_IN_SEC = 1000.0
@@ -18,7 +18,8 @@ SIM_DP = 'sim_dp'
 #SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
 # SCHEMES = ['sim_rl', 'sim_bb', 'sim_mpc', SIM_DP]
 # SCHEMES = ['sim_rl', 'sim_rl003', 'sim_rl001', 'sim_rl005', 'sim_iml']
-SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl05']
+# SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl003', 'sim_mpc', 'sim_bb']
+SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb', 'sim_iml']
 
 def main():
 	time_all = {}

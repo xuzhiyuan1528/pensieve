@@ -129,7 +129,8 @@ class discrete_BCQ(object):
         # fpath = '/home/eric/Data/drl-il/10020743-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05
         # fpath = '/home/eric/Data/drl-il/10022511-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1
         # fpath = '/home/eric/Data/drl-il/10022529-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5
-        fpath = '/home/eric/Data/drl-il/10023455-sNone/mod/bcq_2000_Q' # 0.45 -> 0.5
+        # fpath = '/home/eric/Data/drl-il/10023455-sNone/mod/bcq_2000_Q' # 0.45 -> 0.5
+        fpath = '/home/eric/Data/drl-il/10143209-sNone/mod/bcq_4000_Q' # 0.45 -> mpc
 
         self.threshold = 0.45
 
