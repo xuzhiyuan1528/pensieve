@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-RESULTS_FOLDER = './results/'
+RESULTS_FOLDER = './gen-logs/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
 MILLISEC_IN_SEC = 1000.0
@@ -16,7 +16,9 @@ SMOOTH_P = 1
 COLOR_MAP = plt.cm.jet #nipy_spectral, Set1,Paired 
 SIM_DP = 'sim_dp'
 #SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
-SCHEMES = ['sim_rl', SIM_DP]
+# SCHEMES = ['sim_rl', 'sim_bb', 'sim_mpc', SIM_DP]
+# SCHEMES = ['sim_rl', 'sim_rl003', 'sim_rl001', 'sim_rl005', 'sim_iml']
+SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl05']
 
 def main():
 	time_all = {}
@@ -41,7 +43,7 @@ def main():
 		bw = []
 		reward = []
 
-		print log_file
+		# print log_file
 
 		with open(RESULTS_FOLDER + log_file, 'rb') as f:
 			if SIM_DP in log_file:
@@ -101,7 +103,8 @@ def main():
 		# print log_file
 
 		for scheme in SCHEMES:
-			if scheme in log_file:
+			name = scheme + '_'
+			if name in log_file:
 				time_all[scheme][log_file[len('log_' + str(scheme) + '_'):]] = time_ms
 				bit_rate_all[scheme][log_file[len('log_' + str(scheme) + '_'):]] = bit_rate
 				buff_all[scheme][log_file[len('log_' + str(scheme) + '_'):]] = buff
@@ -161,6 +164,9 @@ def main():
 	ax = fig.add_subplot(111)
 
 	for scheme in SCHEMES:
+		# print(scheme)
+		# print(len(reward_all[scheme]), reward_all[scheme])
+		# print(np.mean(reward_all[scheme]))
 		values, base = np.histogram(reward_all[scheme], bins=NUM_BINS)
 		cumulative = np.cumsum(values)
 		ax.plot(base[:-1], cumulative)	
@@ -175,6 +181,9 @@ def main():
 	plt.xlabel('total reward')
 	plt.show()
 
+	for f, r in zip(log_file_all, reward_all['sim_iml']):
+		print f, r
+	exit()
 
 	# ---- ---- ---- ----
 	# check each trace

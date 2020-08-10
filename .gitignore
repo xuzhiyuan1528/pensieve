@@ -1,4 +1,5 @@
 real_exp/results_*
+test/gen-*
 
 .vscode
 .idea

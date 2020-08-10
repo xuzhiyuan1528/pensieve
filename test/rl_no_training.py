@@ -1,4 +1,6 @@
 import os
+import sys
+from collections import deque
 os.environ['CUDA_VISIBLE_DEVICES']=''
 import numpy as np
 import tensorflow as tf
@@ -22,28 +24,46 @@ SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-SUMMARY_DIR = './results'
-LOG_FILE = './results/log_sim_rl'
+TRACE_DIR = './cooked_traces/'
+SUMMARY_DIR = './gen-logs'
+TRANS_DIR = './gen-traces'
+LOG_FILE = SUMMARY_DIR + '/log_sim_rl05'
+TRANS_FILE = TRANS_DIR + '/trace_sim_rl05'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 NN_MODEL = './models/pretrain_linear_reward.ckpt'
 
 
 def main():
-
-    np.random.seed(RANDOM_SEED)
+    # run_id = '0'
+    rnd_ratio = 0.5
+    if len(sys.argv) > 1:
+        run_id = sys.argv[1]
+    else:
+        run_id = '0'
+    seed = RANDOM_SEED + int(run_id)
+    np.random.seed(seed)
 
     assert len(VIDEO_BIT_RATE) == A_DIM
 
     if not os.path.exists(SUMMARY_DIR):
         os.makedirs(SUMMARY_DIR)
+    if not os.path.exists(TRANS_DIR):
+        os.makedirs(TRANS_DIR)
 
-    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace()
+    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(cooked_trace_folder=TRACE_DIR)
 
     net_env = env.Environment(all_cooked_time=all_cooked_time,
-                              all_cooked_bw=all_cooked_bw)
+                              all_cooked_bw=all_cooked_bw,
+                              random_seed=seed)
 
-    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx]
+    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
     log_file = open(log_path, 'wb')
+    trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+    trans_file = open(trans_path, 'wb')
+
+    last_action = deque(maxlen=2)
+    last_action.append(1)
+    last_action.append(1)
 
     with tf.Session() as sess:
 
@@ -113,8 +133,10 @@ def main():
             # retrieve previous state
             if len(s_batch) == 0:
                 state = [np.zeros((S_INFO, S_LEN))]
+                old_state = np.zeros((S_INFO, S_LEN), dtype=np.float64)
             else:
                 state = np.array(s_batch[-1], copy=True)
+                old_state = np.array(s_batch[-1], copy=True)
 
             # dequeue history record
             state = np.roll(state, -1, axis=1)
@@ -133,6 +155,22 @@ def main():
             # Note: we need to discretize the probability into 1/RAND_RANGE steps,
             # because there is an intrinsic discrepancy in passing single state and batch states
 
+            if np.random.random() < rnd_ratio:
+                bit_rate = np.random.randint(0, A_DIM)
+                print "random action", bit_rate
+            send_data = str(bit_rate)
+            trans_file.write('|'.join([str(list(old_state.reshape(-1))),
+                                          str(list(action_prob.reshape(-1))),
+                                          str(list(state.reshape(-1))),
+                                          str(reward), str(send_data)]))
+            trans_file.write('\n')
+            trans_file.flush()
+
+            # print 'state', list(old_state.reshape(-1))
+            # print 'action', last_action[0]
+            # print 'reward', reward
+
+            last_action.append(send_data)
             s_batch.append(state)
 
             entropy_record.append(a3c.compute_entropy(action_prob[0]))
@@ -140,6 +178,9 @@ def main():
             if end_of_video:
                 log_file.write('\n')
                 log_file.close()
+
+                trans_file.write('\n')
+                trans_file.close()
 
                 last_bit_rate = DEFAULT_QUALITY
                 bit_rate = DEFAULT_QUALITY  # use the default action here
@@ -155,14 +196,16 @@ def main():
                 a_batch.append(action_vec)
                 entropy_record = []
 
-                print "video count", video_count
+                print "video count", video_count, all_file_names[net_env.trace_idx]
                 video_count += 1
 
                 if video_count >= len(all_file_names):
                     break
 
-                log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx]
+                log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
                 log_file = open(log_path, 'wb')
+                trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+                trans_file = open(trans_path, 'wb')
 
 
 if __name__ == '__main__':

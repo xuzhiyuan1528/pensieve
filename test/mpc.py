@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import fixed_env as env
 import load_trace
@@ -22,8 +24,11 @@ SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000000
-SUMMARY_DIR = './results'
-LOG_FILE = './results/log_sim_mpc'
+TRACE_DIR = './cooked_traces-x-3G/'
+SUMMARY_DIR = './gen-logs-3G'
+TRANS_DIR = './gen-traces-3G'
+LOG_FILE = SUMMARY_DIR + '/log_sim_mpc'
+TRANS_FILE = TRANS_DIR + '/trace_sim_mpc'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 # NN_MODEL = './models/nn_model_ep_5900.ckpt'
 
@@ -50,18 +55,25 @@ def get_chunk_size(quality, index):
 
 
 def main():
-
+    run_id = 0
     np.random.seed(RANDOM_SEED)
 
     assert len(VIDEO_BIT_RATE) == A_DIM
 
-    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace()
+    if not os.path.exists(SUMMARY_DIR):
+        os.makedirs(SUMMARY_DIR)
+    if not os.path.exists(TRANS_DIR):
+        os.makedirs(TRANS_DIR)
+
+    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(TRACE_DIR)
 
     net_env = env.Environment(all_cooked_time=all_cooked_time,
                               all_cooked_bw=all_cooked_bw)
 
-    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx]
+    log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
     log_file = open(log_path, 'wb')
+    trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+    trans_file = open(trans_path, 'wb')
 
     time_stamp = 0
 
@@ -72,6 +84,8 @@ def main():
     action_vec[bit_rate] = 1
 
     s_batch = [np.zeros((S_INFO, S_LEN))]
+    rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
+
     a_batch = [action_vec]
     r_batch = []
     entropy_record = []
@@ -86,7 +100,7 @@ def main():
         # the action is from the last decision
         # this is to make the framework similar to the real
         delay, sleep_time, buffer_size, rebuf, \
-        video_chunk_size, \
+        video_chunk_size, next_video_chunk_sizes, \
         end_of_video, video_chunk_remain = \
             net_env.get_video_chunk(bit_rate)
 
@@ -128,11 +142,32 @@ def main():
         # retrieve previous state
         if len(s_batch) == 0:
             state = [np.zeros((S_INFO, S_LEN))]
+            rl_state = [np.zeros((S_INFO + 1, S_LEN))]
+            old_rl_state = np.zeros((S_INFO + 1, S_LEN), dtype=np.float64)
         else:
             state = np.array(s_batch[-1], copy=True)
+            rl_state = np.array(rl_batch[-1], copy=True)
+            old_rl_state = np.array(rl_batch[-1], copy=True)
 
         # dequeue history record
         state = np.roll(state, -1, axis=1)
+        rl_state = np.roll(rl_state, -1, axis=1)
+
+        # generate state for RL
+        try:
+            rl_state[0, -1] = VIDEO_BIT_RATE[bit_rate] / float(np.max(VIDEO_BIT_RATE))
+            rl_state[1, -1] = buffer_size / BUFFER_NORM_FACTOR
+            rl_state[2, -1] = float(video_chunk_size) / float(delay) / M_IN_K  # kilo byte / ms
+            rl_state[3, -1] = float(delay) / M_IN_K / BUFFER_NORM_FACTOR  # 10 sec
+            rl_state[4, :A_DIM] = np.array(next_video_chunk_sizes) / M_IN_K / M_IN_K  # mega byte
+            rl_state[5, -1] = np.minimum(video_chunk_remain, CHUNK_TIL_VIDEO_END_CAP) / float(CHUNK_TIL_VIDEO_END_CAP)
+        except ZeroDivisionError:
+            # this should occur VERY rarely (1 out of 3000), should be a dash issue
+            # in this case we ignore the observation and roll back to an eariler one
+            if len(s_batch) == 0:
+                rl_state = [np.zeros((S_INFO + 1, S_LEN))]
+            else:
+                rl_state = np.array(rl_batch[-1], copy=True)
 
         # this should be S_INFO number of terms
         state[0, -1] = VIDEO_BIT_RATE[bit_rate] / float(np.max(VIDEO_BIT_RATE))  # last quality
@@ -227,6 +262,16 @@ def main():
                 if ( best_combo != () ): # some combo was good
                     send_data = best_combo[0]
 
+                action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
+                action_prob[int(send_data)] = 1.0
+
+                trans_file.write('|'.join([str(list(old_rl_state.reshape(-1))),
+                                              str(list(action_prob.reshape(-1))),
+                                              str(list(rl_state.reshape(-1))),
+                                              str(reward), str(send_data)]))
+                trans_file.write('\n')
+                trans_file.flush()
+
         bit_rate = send_data
         # hack
         # if bit_rate == 1 or bit_rate == 2:
@@ -238,6 +283,7 @@ def main():
         # because there is an intrinsic discrepancy in passing single state and batch states
 
         s_batch.append(state)
+        rl_batch.append(rl_state)
 
         if end_of_video:
             log_file.write('\n')
@@ -253,6 +299,7 @@ def main():
             action_vec = np.zeros(A_DIM)
             action_vec[bit_rate] = 1
 
+            rl_batch = [np.zeros((S_INFO + 1, S_LEN))]
             s_batch.append(np.zeros((S_INFO, S_LEN)))
             a_batch.append(action_vec)
             entropy_record = []
@@ -263,8 +310,10 @@ def main():
             if video_count >= len(all_file_names):
                 break
 
-            log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx]
+            log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
             log_file = open(log_path, 'wb')
+            trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
+            trans_file = open(trans_path, 'wb')
 
 
 if __name__ == '__main__':

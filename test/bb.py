@@ -15,8 +15,9 @@ RANDOM_SEED = 42
 RAND_RANGE = 1000000
 RESEVOIR = 5  # BB
 CUSHION = 10  # BB
-SUMMARY_DIR = './results'
-LOG_FILE = './results/log_sim_bb'
+TRACE_DIR = './cooked_traces-x-3G/'
+SUMMARY_DIR = './gen-logs-3G'
+LOG_FILE = SUMMARY_DIR + '/log_sim_bb'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 
 
@@ -26,7 +27,7 @@ def main():
 
     assert len(VIDEO_BIT_RATE) == A_DIM
 
-    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace()
+    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(TRACE_DIR)
 
     net_env = env.Environment(all_cooked_time=all_cooked_time,
                               all_cooked_bw=all_cooked_bw)

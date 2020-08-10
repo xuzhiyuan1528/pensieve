@@ -13,7 +13,7 @@ A_DIM = 6
 class LSTM_ABR(nn.Module):
     def __init__(self, state_dim, num_actions):
         super(LSTM_ABR, self).__init__()
-        unit = 128
+        unit = 64
 
         self.q00 = nn.LSTM(1, unit, batch_first=True)
         self.q01 = nn.LSTM(1, unit, batch_first=True)
@@ -71,6 +71,37 @@ class LSTM_ABR(nn.Module):
 
         return self.q2(q), F.log_softmax(i, dim=1), i
 
+class FC_Q(nn.Module):
+    def __init__(self, state_dim, num_actions):
+        super(FC_Q, self).__init__()
+        unit = 128
+        self.q1 = nn.Linear(state_dim, unit)
+        self.q1_bn = nn.BatchNorm1d(unit)
+        self.q2 = nn.Linear(unit, unit)
+        self.q2_bn = nn.BatchNorm1d(unit)
+        # self.q2_dp = nn.Dropout(0.3)
+        self.q3 = nn.Linear(unit, num_actions)
+
+        self.i1 = nn.Linear(state_dim, unit)
+        self.i1_bn = nn.BatchNorm1d(unit)
+        self.i2 = nn.Linear(unit, unit)
+        self.i2_bn = nn.BatchNorm1d(unit)
+        self.i3 = nn.Linear(unit, num_actions)
+
+    def forward(self, state):
+        q = F.relu(self.q1_bn(self.q1(state)))
+        q = F.relu(self.q2_bn(self.q2(q)))
+
+        i = F.relu(self.i1_bn(self.i1(state)))
+        i = F.relu(self.i2_bn(self.i2(i)))
+        i = F.relu(self.i3(i))
+        return self.q3(q), F.log_softmax(i, dim=1), i
+
+
+def process_state2(states):
+    return states
+
+
 def process_state(states):
     if type(states) is not torch.Tensor:
         states = np.array(states)
@@ -92,16 +123,24 @@ def process_state(states):
 
 class discrete_BCQ(object):
     def __init__(self):
-        fpath = '/home/eric/Data/drl-il/06120523-sNone/mod/bcq_27233_Q'
+        # fpath = '/home/eric/Data/drl-il/10015833-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0
+        # fpath = '/home/eric/Data/drl-il/10015128-sNone/mod/bcq_6673_Q' # 0.45 -> 0.01
+        # fpath = '/home/eric/Data/drl-il/10014644-sNone/mod/bcq_6673_Q' # 0.45 -> 0.03
+        # fpath = '/home/eric/Data/drl-il/10020743-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05
+        # fpath = '/home/eric/Data/drl-il/10022511-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1
+        # fpath = '/home/eric/Data/drl-il/10022529-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5
+        fpath = '/home/eric/Data/drl-il/10023455-sNone/mod/bcq_2000_Q' # 0.45 -> 0.5
+
+        self.threshold = 0.45
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         state_dim = S_INFO * S_LEN
         num_actions = A_DIM
 
         self.Q = LSTM_ABR(state_dim, num_actions).to(self.device)
+        # self.Q = FC_Q(state_dim, num_actions).to(self.device)
 
         self.state_shape = (-1, state_dim)
-        self.threshold = 0.45
         print(os.getcwd())
         self.Q.load_state_dict(torch.load(fpath, map_location=self.device))
         print('load mode from', fpath)
