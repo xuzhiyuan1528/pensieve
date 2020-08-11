@@ -19,7 +19,9 @@ SIM_DP = 'sim_dp'
 # SCHEMES = ['sim_rl', 'sim_bb', 'sim_mpc', SIM_DP]
 # SCHEMES = ['sim_rl', 'sim_rl003', 'sim_rl001', 'sim_rl005', 'sim_iml']
 # SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl003', 'sim_mpc', 'sim_bb']
-SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb', 'sim_iml']
+# SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb', 'sim_iml']
+# SCHEMES = ['sim_bb']
+SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb']
 
 def main():
 	time_all = {}

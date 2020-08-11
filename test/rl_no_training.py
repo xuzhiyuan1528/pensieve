@@ -24,11 +24,16 @@ SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-TRACE_DIR = './cooked_traces/'
-SUMMARY_DIR = './gen-logs'
-TRANS_DIR = './gen-traces'
-LOG_FILE = SUMMARY_DIR + '/log_sim_rl05'
-TRANS_FILE = TRANS_DIR + '/trace_sim_rl05'
+# TRACE_DIR = './cooked_traces/'
+# SUMMARY_DIR = './gen-logs'
+# TRANS_DIR = './gen-traces'
+# LOG_FILE = SUMMARY_DIR + '/log_sim_rl05'
+# TRANS_FILE = TRANS_DIR + '/trace_sim_rl05'
+TRACE_DIR = './cooked_traces-x-3G/'
+SUMMARY_DIR = './gen-logs-3G'
+TRANS_DIR = './gen-traces-3G'
+LOG_FILE = SUMMARY_DIR + '/log_sim_rl'
+TRANS_FILE = TRANS_DIR + '/trace_sim_rl'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 NN_MODEL = './models/pretrain_linear_reward.ckpt'
 
@@ -199,7 +204,7 @@ def main():
                 print "video count", video_count, all_file_names[net_env.trace_idx]
                 video_count += 1
 
-                if video_count >= len(all_file_names):
+                if video_count > len(all_file_names):
                     break
 
                 log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
