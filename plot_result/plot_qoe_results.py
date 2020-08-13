@@ -50,6 +50,7 @@ class AlgResults():
                 trace_reward = 1 / (1 + np.exp(-np.array(trace_reward)))
 
             total_trace_reward = np.sum(trace_reward) / norm_base
+            # total_trace_reward = np.mean(trace_reward) / norm_base
             total_line = len(trace_reward)
 
             if total_line == 0:

@@ -90,8 +90,10 @@ def main():
 
     log_file_all = []
     reward_all = {}
+    ave_reward_all = {}
     for scheme in SCHEMES:
         reward_all[scheme] = []
+        ave_reward_all[scheme] = []
 
     # reward_all['Ours'] = our_reward
 
@@ -105,6 +107,7 @@ def main():
             if schemes_check:
                 log_file_all.append(l)
                 reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN]))
+                ave_reward_all[scheme].append(np.mean(raw_reward_all[scheme][l][1:VIDEO_LEN]))
                 # reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:]))
                 # reward_all[scheme].extend(raw_reward_all[scheme][l][1:])
 
@@ -146,10 +149,11 @@ def main():
     ax = fig.add_subplot(111)
 
     for scheme in SCHEMES:
-        cur_reward_all = np.array(reward_all[scheme])
-        max_reward = np.max(cur_reward_all)
-        min_reward = np.min(cur_reward_all)
-        cur_reward_all = (cur_reward_all - min_reward) / (max_reward - min_reward)
+        # cur_reward_all = np.array(reward_all[scheme])
+        cur_reward_all = np.array(ave_reward_all[scheme])
+        # max_reward = np.max(cur_reward_all)
+        # min_reward = np.min(cur_reward_all)
+        # cur_reward_all = (cur_reward_all - min_reward) / (max_reward - min_reward)
 
         values, base = np.histogram(cur_reward_all, bins=NUM_BINS)
         cumulative = np.cumsum(values)
@@ -173,7 +177,7 @@ def main():
     ax.legend(SCHEMES_REW, loc=len(SCHEMES_REW))
 
     plt.ylabel('CDF')
-    plt.xlabel('total reward')
+    plt.xlabel('Ave QoE')
     plt.show()
 
     # ---- ---- ---- ----
