@@ -116,27 +116,27 @@ def main():
     # mean_rewards['Ours'] = np.mean(reward_all['Ours'])
 
     # plot total reward
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
 
-    for scheme in SCHEMES:
-        ax.plot(reward_all[scheme])
+    # for scheme in SCHEMES:
+    #     ax.plot(reward_all[scheme])
     # ax.plot(reward_all['Ours'])
 
-    SCHEMES_REW = []
-    for scheme in SCHEMES:
-        SCHEMES_REW.append(scheme + ': %.4f' % mean_rewards[scheme])
+    # SCHEMES_REW = []
+    # for scheme in SCHEMES:
+    #     SCHEMES_REW.append(scheme + ': %.4f' % mean_rewards[scheme])
     # SCHEMES_REW.append('Ours: %.4f' % mean_rewards['Ours'])
 
-    colors = [COLOR_MAP(i) for i in np.linspace(0, 1, len(ax.lines))]
-    for i, j in enumerate(ax.lines):
-        j.set_color(colors[i])
-
-    ax.legend(SCHEMES_REW, loc=len(SCHEMES_REW))
-
-    plt.ylabel('total reward')
-    plt.xlabel('trace index')
-    plt.show()
+    # colors = [COLOR_MAP(i) for i in np.linspace(0, 1, len(ax.lines))]
+    # for i, j in enumerate(ax.lines):
+    #     j.set_color(colors[i])
+    #
+    # ax.legend(SCHEMES_REW, loc=len(SCHEMES_REW))
+    #
+    # plt.ylabel('total reward')
+    # plt.xlabel('trace index')
+    # plt.show()
 
     # ---- ---- ---- ----
     # CDF
@@ -146,12 +146,25 @@ def main():
     ax = fig.add_subplot(111)
 
     for scheme in SCHEMES:
-        values, base = np.histogram(reward_all[scheme], bins=NUM_BINS)
+        cur_reward_all = np.array(reward_all[scheme])
+        max_reward = np.max(cur_reward_all)
+        min_reward = np.min(cur_reward_all)
+        cur_reward_all = (cur_reward_all - min_reward) / (max_reward - min_reward)
+
+        values, base = np.histogram(cur_reward_all, bins=NUM_BINS)
         cumulative = np.cumsum(values)
-        ax.plot(base[:-1], cumulative)
+        cumulative = cumulative.astype(float)
+        max_cumu = np.max(cumulative)
+        min_cumu = np.min(cumulative)
+        cur_cumu_all = (cumulative - min_cumu) / (max_cumu - min_cumu)
+        ax.plot(base[:-1], cur_cumu_all)
     # values, base = np.histogram(reward_all['Ours'], bins=NUM_BINS)
     # cumulative = np.cumsum(values)
     # ax.plot(base[:-1], cumulative)
+
+    SCHEMES_REW = []
+    for scheme in SCHEMES:
+        SCHEMES_REW.append(scheme)
 
     colors = [COLOR_MAP(i) for i in np.linspace(0, 1, len(ax.lines))]
     for i, j in enumerate(ax.lines):
