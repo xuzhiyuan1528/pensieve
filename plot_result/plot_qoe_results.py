@@ -12,6 +12,7 @@ base_dir = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/resul
 ori_base_dir = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/results_ori'
 
 VIDEO_LEN = 48
+USE_Sigmoild = False
 
 class AlgResults():
     def __init__(self, alg_name):
@@ -45,6 +46,8 @@ class AlgResults():
             # for line_reward in trace_reward:
             #     total_trace_reward += line_reward
             #     total_line += 1
+            if USE_Sigmoild:
+                trace_reward = 1 / (1 + np.exp(-np.array(trace_reward)))
 
             total_trace_reward = np.sum(trace_reward) / norm_base
             total_line = len(trace_reward)
@@ -80,6 +83,9 @@ class AlgResults():
         for trace_reward, fname in zip(self.ori_rewards, self.ori_fnames):
             # total_trace_reward = 0.0
             # total_line = 0
+
+            if USE_Sigmoild:
+                trace_reward = 1 / (1 + np.exp(-np.array(trace_reward)))
 
             total_trace_reward = np.sum(trace_reward) / norm_base
             total_line = len(trace_reward)
@@ -144,6 +150,9 @@ class AlgResults():
             start = 1
             end = min(len(reward), VIDEO_LEN)
 
+        # if len(reward) < VIDEO_LEN:
+        #     return
+
         self.fnames.append(fname)
         self.states.append(state[start:end])
         self.actions.append(action[start:end])
@@ -173,6 +182,9 @@ class AlgResults():
             start = 1
             end = min(len(reward), VIDEO_LEN)
 
+        # if len(reward) < VIDEO_LEN:
+        #     return
+
         self.ori_fnames.append(fname)
         self.ori_rewards.append(reward[start:end])
 
@@ -189,7 +201,7 @@ class AlgResults():
 # our_reward = np.load(our_reward_path)
 
 # alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'Our', 'RL']
-alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'RL', 'BB', 'Ours']
+alg_names = ['BB', 'fastMPC', 'robustMPC', 'BOLA', 'Ours', 'RL']
 alg_results = dict()
 
 for alg_name in alg_names:
@@ -211,16 +223,16 @@ for fname in sorted(os.listdir(base_dir)):
         old_reward_flag = False
 
     cur_alg_results.deal_with_pensieve(fname, old_reward_flag)
-    cur_alg_results.deal_with_ori_pensieve(fname, old_reward_flag)
+    # cur_alg_results.deal_with_ori_pensieve(fname, old_reward_flag)
 
-alg_results['Ours'].cal_rewards()
-norm_base = alg_results['Ours'].ave_rewards_all_trace
+alg_results['RL'].cal_rewards()
+norm_base = alg_results['RL'].ave_rewards_all_trace
 # norm_base = 1.0
 for alg_name in alg_names:
     # if alg_name == 'RL':
     #     continue
     alg_results[alg_name].cal_rewards(norm_base=norm_base)
-    alg_results[alg_name].cal_ori_rewards(norm_base=norm_base)
+    # alg_results[alg_name].cal_ori_rewards(norm_base=norm_base)
 
 ############## plot figure #########
 
@@ -228,6 +240,7 @@ SMALL_SIZE = 8
 MEDIUM_SIZE = 11
 LARGE_SIZE = 14
 LARGER_SIZE = 16
+ADD_STDS = False
 
 plt.rc('font', size=LARGE_SIZE)          # controls default text sizes
 plt.rc('axes', titlesize=LARGE_SIZE)     # fontsize of the axes title
@@ -268,9 +281,14 @@ print(stds)
 plt.ylabel('Normalized average QoE')
 # plt.bar(index, avgs, yerr=stds, color=color, error_kw=error_kw, label=labels, hatch=patterns)
 hatch_density = 2
-for i, pattern in enumerate(patterns[:len(alg_names)]):
-    plt.bar(i, avgs[i], hatch=pattern * hatch_density,
-            label=labels[i], color=color[i], yerr=stds[i], error_kw=error_kw, width=1.0)
+if ADD_STDS:
+    for i, pattern in enumerate(patterns[:len(alg_names)]):
+        plt.bar(i, avgs[i], hatch=pattern * hatch_density,
+                label=labels[i], color=color[i], yerr=stds[i], error_kw=error_kw, width=1.0)
+else:
+    for i, pattern in enumerate(patterns[:len(alg_names)]):
+        plt.bar(i, avgs[i], hatch=pattern * hatch_density,
+                label=labels[i], color=color[i], error_kw=error_kw, width=1.0)
 
 plt.xticks(index, names)
 # plt.legend()
