@@ -19,7 +19,11 @@ import matplotlib.pyplot as plt
 # our_reward = np.load(our_reward_path)
 # our_ndone = np.load(our_ndone_path)
 
-RESULTS_FOLDER = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/results_ori'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results'
+root = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/test_results'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/link304-results'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/sim_results'
+RESULTS_FOLDER = os.path.join(root, 'results_ori')
 
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
@@ -30,6 +34,9 @@ VIDEO_BIT_RATE = [350, 600, 1000, 2000, 3000]
 COLOR_MAP = plt.cm.jet  # nipy_spectral, Set1,Paired
 # SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
 SCHEMES = ['fastMPC', 'robustMPC', 'BOLA', 'RL', 'BB', 'Ours']
+if root.find('link304') >= 0:
+    SCHEMES = ['fastMPC', 'robustMPC', 'BOLA', 'RL', 'Ours']
+SCHEMES_IMG_NAME = 'Normalized_CDF.jpg'
 
 def main():
     time_all = {}
@@ -96,20 +103,26 @@ def main():
         ave_reward_all[scheme] = []
 
     # reward_all['Ours'] = our_reward
-
+    small_len_count = 0
     for l in time_all[SCHEMES[0]]:
         schemes_check = True
         for scheme in SCHEMES:
             # if l not in time_all[scheme] or len(time_all[scheme][l]) < VIDEO_LEN:
             if l not in time_all[scheme]:
                 schemes_check = False
+                print('log file ' + str(l) + ' has len smaller the VIDEO_LEN')
+                small_len_count += 1
                 break
-            if schemes_check:
-                log_file_all.append(l)
+        if schemes_check:
+            log_file_all.append(l)
+            for scheme in SCHEMES:
                 reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN]))
                 ave_reward_all[scheme].append(np.mean(raw_reward_all[scheme][l][1:VIDEO_LEN]))
                 # reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:]))
                 # reward_all[scheme].extend(raw_reward_all[scheme][l][1:])
+    print('Total %d logs' % len(time_all[SCHEMES[0]]))
+    print('%d logs are too small.' % small_len_count)
+
 
     mean_rewards = {}
     for scheme in SCHEMES:
@@ -178,7 +191,10 @@ def main():
 
     plt.ylabel('CDF')
     plt.xlabel('Ave QoE')
-    plt.show()
+    img_path = os.path.join(root, SCHEMES_IMG_NAME)
+    plt.savefig(img_path)
+    plt.close()
+    # plt.show()
 
     # ---- ---- ---- ----
     # check each trace
