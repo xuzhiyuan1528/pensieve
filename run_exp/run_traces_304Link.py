@@ -9,16 +9,16 @@ RANDOM_SEED = 42
 RUN_TIME = 240  # sec
 MM_DELAY = 40   # millisec
 
-ABR_ALGO = ['robustMPC']
+# ABR_ALGO = ['Ours']
+ABR_ALGO = ['BOLA', 'fastMPC', 'RL', 'robustMPC']
 
 os.system('sudo sysctl -w net.ipv4.ip_forward=1')
 
-# TRACE_PATH = '../pantheon_traces/'
-# TRACE_PATH = '../norway_part_train_traces/'
-TRACE_PATH = '../fcc_part_train_traces/'
+TRACE_PATH = '../pantheon_traces/'
+# TRACE_PATH = '../norway_part_traces/'
 
 ip = '100.64.0.1'
-REPEAT_TIME = 1
+REPEAT_TIME = 3
 
 def main():
 	# trace_path = sys.argv[1]
@@ -43,8 +43,8 @@ def main():
 				# if f.find('77.72mbps') < 0:
 				# 	continue
 
-				# if f.find('3.04mbps-poisson') < 0:
-				# 	continue
+				if f.find('3.04mbps-poisson') < 0:
+					continue
 
 				while True:
 
@@ -61,12 +61,12 @@ def main():
 					# print(script)
 
 					# 3.04
-					# script = 'mm-delay 130' + ' mm-link ' + trace_path + f + ' ' + trace_path + f + \
-					# 		 ' --uplink-queue=droptail --uplink-queue-args=packets=426' + \
-					# 		 ' /usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
-					# 		 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
-					# 		 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt)
-					# print(script)
+					script = 'mm-delay 130' + ' mm-link ' + trace_path + f + ' ' + trace_path + f + \
+							 ' --uplink-queue=droptail --uplink-queue-args=packets=426' + \
+							 ' /usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
+							 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
+							 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt+17)
+					print(script)
 
 					# '12mbps.trace'
 					# script = 'mm-delay 30' + ' mm-link ' + trace_path + f + ' ' + trace_path + f + \
@@ -78,12 +78,12 @@ def main():
 
 					# proc = subprocess.Popen(script, shell=True)
 
-					script = 'mm-delay ' + str(MM_DELAY) + \
-							 ' mm-link 12mbps ' + trace_path + f + ' ' + \
-							 '/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
-							 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
-							 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt),
-					print(script)
+					# script = 'mm-delay ' + str(MM_DELAY) + \
+					# 		 ' mm-link 12mbps ' + trace_path + f + ' ' + \
+					# 		 '/usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
+					# 		 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
+					# 		 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt),
+					# print(script)
 
 					# proc = subprocess.Popen(script, shell=True)
 					proc = subprocess.Popen(script,

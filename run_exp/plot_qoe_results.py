@@ -83,11 +83,13 @@ def deal_with_pensieve(fname):
 # base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/Pensieve_emu_304mbps'
 # base_dir = '/home/eric/Dev/DRL-IL/pensieve/run_exp/results'
 # base_dir = '/home/cst/wk/Pensieve/data/norway_results/train_results/results'
-base_dir = '/home/cst/wk/Pensieve/data/norway_results/test_results/results'
+# base_dir = '/home/cst/wk/Pensieve/data/norway_results/test_results/results'
+base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results'
 # base_dir = '/home/cst/wk/Pensieve/data/results_7772mbps_20200805/results'
 
 # alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'Our', 'RL']
-alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'RL']
+alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'RL', 'BB']
+# alg_names = ['Ours']
 alg_results = dict()
 
 for alg_name in alg_names:
@@ -97,6 +99,8 @@ for fname in sorted(os.listdir(base_dir)):
     # if 'trace_0' not in fname:
     #     continue
     # print(f'process file {fname}')
+    if 'npy' in fname:
+        continue
     alg_name = fname.split('_')[1]
 
     cur_alg_results = alg_results[alg_name]

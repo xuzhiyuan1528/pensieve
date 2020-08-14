@@ -3,7 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-RESULTS_FOLDER = './gen-logs-3G/'
+# RESULTS_FOLDER = './obv-logs/'
+# RESULTS_FOLDER = './gen-logs/'
+# RESULTS_FOLDER = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results_ori/'
+RESULTS_FOLDER = '/home/eric/Dev/DRL-IL/pensieve/run_exp/results_ori/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
 MILLISEC_IN_SEC = 1000.0
@@ -15,11 +18,14 @@ REBUF_P = 4.3
 SMOOTH_P = 1
 COLOR_MAP = plt.cm.jet #nipy_spectral, Set1,Paired 
 SIM_DP = 'sim_dp'
-#SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
-# SCHEMES = ['sim_rl', 'sim_bb', 'sim_mpc', SIM_DP]
+# SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
+# SCHEMES = ['BOLA', 'RL', 'fastMPC', 'robustMPC', 'Ours', 'BB']
+SCHEMES = ['Ours', 'RL', 'fastMPC']
 # SCHEMES = ['sim_rl', 'sim_rl003', 'sim_rl001', 'sim_rl005', 'sim_iml']
-# SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl003', 'sim_mpc', 'sim_bb']
-SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb', 'sim_iml']
+# SCHEMES = ['sim_rl', 'sim_iml05', 'sim_mpc', 'sim_bb', 'sim_bcq05']
+# SCHEMES = ['sim_rl', 'sim_iml', 'sim_mpc', 'sim_bb', 'sim_bcq']
+# SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl0.5']
+# SCHEMES = ['sim_rl', 'sim_mpc', 'sim_mpc001', 'sim_mpc003', 'sim_mpc005', 'sim_iml']
 
 def main():
 	time_all = {}
@@ -97,7 +103,7 @@ def main():
 			bit_rate = bit_rate[::-1]
 			buff = buff[::-1]
 			bw = bw[::-1]
-		
+
 		time_ms = np.array(time_ms)
 		time_ms -= time_ms[0]
 		
@@ -131,6 +137,7 @@ def main():
 		if schemes_check:
 			log_file_all.append(l)
 			for scheme in SCHEMES:
+				# reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN])/VIDEO_LEN)
 				reward_all[scheme].append(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN]))
 
 	mean_rewards = {}
@@ -182,9 +189,13 @@ def main():
 	plt.xlabel('total reward')
 	plt.show()
 
-	for f, r in zip(log_file_all, reward_all['sim_iml']):
-		print f, r
-	exit()
+	if 'sim_iml' in reward_all:
+		for f, r in zip(log_file_all, reward_all['sim_iml']):
+			print f, r
+	for k, v in reward_all.items():
+		mean = np.mean(v) #/ np.mean(reward_all['RL'])
+		print k, mean, np.std(v)
+	# exit()
 
 	# ---- ---- ---- ----
 	# check each trace
@@ -231,7 +242,7 @@ def main():
 
 			ax.legend(SCHEMES_REW, loc=9, bbox_to_anchor=(0.5, -0.1), ncol=int(np.ceil(len(SCHEMES) / 2.0)))
 			plt.show()
-
+		break
 
 if __name__ == '__main__':
 	main()

@@ -37,7 +37,10 @@ rt = sys.argv[7]
 sleep(int(sleep_time))
 	
 # generate url
-url = 'http://' + ip + '/' + 'myindex_' + abr_algo + '.html'
+if abr_algo == 'Ours':
+	url = 'http://' + ip + '/' + 'myindex_RL.html'
+else:
+	url = 'http://' + ip + '/' + 'myindex_' + abr_algo + '.html'
 print(url)
 
 # timeout signal
@@ -58,10 +61,13 @@ try:
 		command = 'exec /usr/bin/python ../rl_server/mpc_server.py ' + trace_file + '_' + str(rt)
 	elif abr_algo == 'robustMPC':
 		command = 'exec /usr/bin/python ../rl_server/robust_mpc_server.py ' + trace_file + '_' + str(rt)
+	elif abr_algo == 'Ours':
+		command = 'exec /usr/bin/python ../rl_server/abr_our_server.py ' + trace_file + '_' + str(rt)
 	else:
 		command = 'exec /usr/bin/python ../rl_server/simple_server.py ' + abr_algo + ' ' + trace_file + '_' + str(rt)
 	
-	proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	# proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	proc = subprocess.Popen(command, shell=True)
 	sleep(2)
 	
 	# to not display the page in browser

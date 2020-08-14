@@ -3,17 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 RESULTS_FOLDER = './results_ori/'
-# RESULTS_FOLDER = '/home/cst/wk/Pensieve/data/results_304mbps_20200801/'
+# RESULTS_FOLDER = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/test_results/results_ori/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
 MILLISEC_IN_SEC = 1000.0
 M_IN_B = 1000000.0
-VIDEO_LEN = 30 #64
+VIDEO_LEN = 48 #64
 VIDEO_BIT_RATE = [350, 600, 1000, 2000, 3000]
 COLOR_MAP = plt.cm.jet #nipy_spectral, Set1,Paired 
 SIM_DP = 'sim_dp'
 # SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
-SCHEMES = ['fastMPC', 'robustMPC', 'BOLA', 'RL']
+# SCHEMES = ['Ours']
+SCHEMES = ['fastMPC', 'robustMPC', 'BB', 'RL', 'Ours']
 
 def main():
 	time_all = {}
@@ -153,6 +154,7 @@ def main():
 	plt.xlabel('total reward')
 	plt.show()
 
+	exit()
 
 	# ---- ---- ---- ----
 	# check each trace

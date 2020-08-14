@@ -1,4 +1,6 @@
-real_exp/results_*
+real_exp/results*
+run_exp/results*
+sim/results*
 test/gen-*
 
 .vscode
