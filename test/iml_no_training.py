@@ -1,6 +1,6 @@
 import os
 os.environ['CUDA_VISIBLE_DEVICES']=''
-from rl_server import abr_agent
+from rl_server import abr_agent_sim
 import numpy as np
 import fixed_env as env
 import load_trace
@@ -20,9 +20,9 @@ SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000
-TRACE_DIR = './cooked_traces-x-3G/'
-SUMMARY_DIR = './gen-logs-3G'
-TRANS_DIR = './gen-traces-3G'
+TRACE_DIR = './cooked_traces/'
+SUMMARY_DIR = './obv-logs'
+TRANS_DIR = './obv-traces'
 LOG_FILE = SUMMARY_DIR + '/log_sim_iml'
 TRANS_FILE = TRANS_DIR + '/trace_sim_iml'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
@@ -49,7 +49,7 @@ def main():
     trans_path = TRANS_FILE + '_' + all_file_names[net_env.trace_idx] + '_' + str(run_id)
     trans_file = open(trans_path, 'wb')
 
-    model = abr_agent.discrete_BCQ()
+    model = abr_agent_sim.discrete_BCQ()
 
     time_stamp = 0
 

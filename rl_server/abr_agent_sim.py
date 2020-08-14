@@ -71,6 +71,7 @@ class LSTM_ABR(nn.Module):
 
         return self.q2(q), F.log_softmax(i, dim=1), i
 
+
 class FC_Q(nn.Module):
     def __init__(self, state_dim, num_actions):
         super(FC_Q, self).__init__()
@@ -94,11 +95,11 @@ class FC_Q(nn.Module):
         return self.q3(q), F.log_softmax(i, dim=1), i
 
 
-def process_state(states):
+def process_state2(states):
     return states
 
 
-def process_state2(states):
+def process_state(states):
     if type(states) is not torch.Tensor:
         states = np.array(states)
         states = torch.from_numpy(states).float()
@@ -119,11 +120,32 @@ def process_state2(states):
 
 class discrete_BCQ(object):
     def __init__(self):
-        # fpath = '/home/eric/Data/drl-il/09043156-sNone/mod/bcq_33369_Q' # norway -> weighted
-        # fpath = '/home/eric/Data/drl-il/11142215-sNone/mod/bcq_19119_Q' # norway -> weighted
-        # fpath = '/home/eric/Data/drl-il/13182406-sNone/mod/bcq_11178_Q' # link304 -> weighted
-        fpath = '/home/eric/Data/drl-il/14024414-sNone/mod/bcq_19119_Q' # link304 -> BCQ
+        fpath = '/home/eric/Data/drl-il/10015833-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> weighted*
+        # fpath = '/home/eric/Data/drl-il/11171910-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> weighted
+        # fpath = '/home/eric/Data/drl-il/13164312-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ
+        # fpath = '/home/eric/Data/drl-il/13164345-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ
+        # fpath = '/home/eric/Data/drl-il/13173559-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ*
+        # fpath = '/home/eric/Data/drl-il/12012324-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
+        # fpath = '/home/eric/Data/drl-il/12012621-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
+        # fpath = '/home/eric/Data/drl-il/12012234-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
 
+        # fpath = '/home/eric/Data/drl-il/10015128-sNone/mod/bcq_6673_Q' # 0.45 -> 0.01
+        # fpath = '/home/eric/Data/drl-il/11180318-sNone/mod/bcq_6673_Q' # 0.45 -> 0.01
+
+        # fpath = '/home/eric/Data/drl-il/10014644-sNone/mod/bcq_6673_Q' # 0.45 -> 0.03
+        # fpath = '/home/eric/Data/drl-il/11235015-sNone/mod/bcq_6673_Q' # 0.45 -> 0.03
+
+        # fpath = '/home/eric/Data/drl-il/10020743-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05
+        # fpath = '/home/eric/Data/drl-il/10022511-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1
+
+        # fpath = '/home/eric/Data/drl-il/13170913-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 -> BCQ*
+        # fpath = '/home/eric/Data/drl-il/12013649-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 - > BCQx
+        # fpath = '/home/eric/Data/drl-il/12021052-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 - > BCQx
+        # fpath = '/home/eric/Data/drl-il/10023455-sNone/mod/bcq_2000_Q' # 0.45 -> 0.5
+        # fpath = '/home/eric/Data/drl-il/12010402-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 *
+
+        # fpath = '/home/eric/Data/drl-il/10165519-sNone/mod/bcq_10000_Q' # 0.45 -> rl -> weights - 3G
+        # fpath = '/home/eric/Data/drl-il/11044737-sNone/mod/bcq_11000_Q' # 0.45 -> rl -> weights - 3G
 
         self.threshold = 0.45
 
@@ -131,8 +153,8 @@ class discrete_BCQ(object):
         state_dim = S_INFO * S_LEN
         num_actions = A_DIM
 
-        # self.Q = LSTM_ABR(state_dim, num_actions).to(self.device)
-        self.Q = FC_Q(state_dim, num_actions).to(self.device)
+        self.Q = LSTM_ABR(state_dim, num_actions).to(self.device)
+        # self.Q = FC_Q(state_dim, num_actions).to(self.device)
 
         self.state_shape = (-1, state_dim)
         print(os.getcwd())
