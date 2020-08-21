@@ -25,17 +25,17 @@ DEFAULT_QUALITY = 1  # default video quality without agent
 RANDOM_SEED = 42
 RAND_RANGE = 1000
 TRACE_DIR = './cooked_traces/'
-SUMMARY_DIR = './obv-logs'
-TRANS_DIR = './obv-traces'
-LOG_FILE = SUMMARY_DIR + '/log_sim_rl0.5'
-TRANS_FILE = TRANS_DIR + '/trace_sim_rl0.5'
+SUMMARY_DIR = './gen-logs'
+TRANS_DIR = './gen-traces'
+LOG_FILE = SUMMARY_DIR + '/log_sim_rl08'
+TRANS_FILE = TRANS_DIR + '/trace_sim_rl08'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
 NN_MODEL = './models/pretrain_linear_reward.ckpt'
 # NN_MODEL = None
 
 def main():
     # run_id = '0'
-    rnd_ratio = 0.5
+    rnd_ratio = 0.8
     if len(sys.argv) > 1:
         run_id = sys.argv[1]
     else:

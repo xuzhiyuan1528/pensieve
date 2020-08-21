@@ -9,8 +9,8 @@ RANDOM_SEED = 42
 RUN_TIME = 240  # sec
 MM_DELAY = 40   # millisec
 
-# ABR_ALGO = ['Ours']
-ABR_ALGO = ['BOLA', 'fastMPC', 'RL', 'robustMPC']
+ABR_ALGO = ['Ours']
+# ABR_ALGO = ['BOLA', 'fastMPC', 'RL', 'robustMPC']
 
 os.system('sudo sysctl -w net.ipv4.ip_forward=1')
 
@@ -18,7 +18,7 @@ TRACE_PATH = '../pantheon_traces/'
 # TRACE_PATH = '../norway_part_traces/'
 
 ip = '100.64.0.1'
-REPEAT_TIME = 3
+REPEAT_TIME = 20
 
 def main():
 	# trace_path = sys.argv[1]
@@ -65,7 +65,7 @@ def main():
 							 ' --uplink-queue=droptail --uplink-queue-args=packets=426' + \
 							 ' /usr/bin/python ' + RUN_SCRIPT + ' ' + ip + ' ' + \
 							 abr_algo + ' ' + str(RUN_TIME) + ' ' + \
-							 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt+17)
+							 process_id + ' ' + f + ' ' + str(sleep_time) + ' ' + str(rt)
 					print(script)
 
 					# '12mbps.trace'

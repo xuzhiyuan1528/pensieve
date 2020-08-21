@@ -120,12 +120,12 @@ def process_state(states):
 
 class discrete_BCQ(object):
     def __init__(self):
-        fpath = '/home/eric/Data/drl-il/10015833-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> weighted*
+        # fpath = '/home/eric/Data/drl-il/10015833-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> weighted*
         # fpath = '/home/eric/Data/drl-il/11171910-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> weighted
         # fpath = '/home/eric/Data/drl-il/13164312-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ
         # fpath = '/home/eric/Data/drl-il/13164345-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ
         # fpath = '/home/eric/Data/drl-il/13173559-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQ*
-        # fpath = '/home/eric/Data/drl-il/12012324-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
+        # fpath = '/home/eric/Data/drl-il/16013337-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
         # fpath = '/home/eric/Data/drl-il/12012621-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
         # fpath = '/home/eric/Data/drl-il/12012234-sNone/mod/bcq_6673_Q' # 0.45 -> 0.0 -> BCQx
 
@@ -136,7 +136,17 @@ class discrete_BCQ(object):
         # fpath = '/home/eric/Data/drl-il/11235015-sNone/mod/bcq_6673_Q' # 0.45 -> 0.03
 
         # fpath = '/home/eric/Data/drl-il/10020743-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05
-        # fpath = '/home/eric/Data/drl-il/10022511-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1
+        # fpath = '/home/eric/Data/drl-il/16012811-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05 -> BCQ*
+        # fpath = '/home/eric/Data/drl-il/16012113-sNone/mod/bcq_6673_Q' # 0.45 -> 0.05
+
+        # fpath = '/home/eric/Data/drl-il/16013709-sNone/mod/bcq_6673_Q' # 0.45 -> 0.8 -> BCQ
+        # fpath = '/home/eric/Data/drl-il/16014742-sNone/mod/bcq_6000_Q' # 0.45 -> 0.8
+
+
+        # fpath = '/home/eric/Data/drl-il/10022511-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1*
+        # fpath = '/home/eric/Data/drl-il/15212244-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1*
+        # fpath = '/home/eric/Data/drl-il/16010254-sNone/mod/bcq_6673_Q' # 0.45 -> 0.1 -> BCQ*
+        # fpath = '/home/eric/Data/drl-il/16005256-sNone/mod/bcq_2000_Q' # 0.45 -> 0.1
 
         # fpath = '/home/eric/Data/drl-il/13170913-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 -> BCQ*
         # fpath = '/home/eric/Data/drl-il/12013649-sNone/mod/bcq_6673_Q' # 0.45 -> 0.5 - > BCQx
@@ -146,6 +156,11 @@ class discrete_BCQ(object):
 
         # fpath = '/home/eric/Data/drl-il/10165519-sNone/mod/bcq_10000_Q' # 0.45 -> rl -> weights - 3G
         # fpath = '/home/eric/Data/drl-il/11044737-sNone/mod/bcq_11000_Q' # 0.45 -> rl -> weights - 3G
+
+        fpath = '/home/eric/Data/drl-il/16020447-sNone/mod/bcq_13347_Q' # from Baselines
+        # fpath = '/home/eric/Data/drl-il/16050054-sNone/mod/bcq_13347_Q' # from Baselines
+        # fpath = '/home/eric/Data/drl-il/16043623-sNone/mod/bcq_13347_Q' # from Baselines
+        # fpath = '/home/eric/Data/drl-il/16031626-sNone/mod/bcq_13347_Q' # from Baselines BCQ
 
         self.threshold = 0.45
 

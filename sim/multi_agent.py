@@ -132,31 +132,31 @@ def central_agent(net_params_queues, exp_queues):
             total_agents = 0.0 
 
             # assemble experiences from the agents
-            actor_gradient_batch = []
-            critic_gradient_batch = []
+            # actor_gradient_batch = []
+            # critic_gradient_batch = []
 
             for i in xrange(NUM_AGENTS):
                 s_batch, a_batch, r_batch, terminal, info = exp_queues[i].get()
 
-                actor_gradient, critic_gradient, td_batch = \
-                    a3c.compute_gradients(
-                        s_batch=np.stack(s_batch, axis=0),
-                        a_batch=np.vstack(a_batch),
-                        r_batch=np.vstack(r_batch),
-                        terminal=terminal, actor=actor, critic=critic)
+                # actor_gradient, critic_gradient, td_batch = \
+                #     a3c.compute_gradients(
+                #         s_batch=np.stack(s_batch, axis=0),
+                #         a_batch=np.vstack(a_batch),
+                #         r_batch=np.vstack(r_batch),
+                #         terminal=terminal, actor=actor, critic=critic)
 
-                actor_gradient_batch.append(actor_gradient)
-                critic_gradient_batch.append(critic_gradient)
+                # actor_gradient_batch.append(actor_gradient)
+                # critic_gradient_batch.append(critic_gradient)
 
                 total_reward += np.sum(r_batch)
-                total_td_loss += np.sum(td_batch)
+                total_td_loss += np.sum([0])
                 total_batch_len += len(r_batch)
                 total_agents += 1.0
                 total_entropy += np.sum(info['entropy'])
 
             # compute aggregated gradient
-            assert NUM_AGENTS == len(actor_gradient_batch)
-            assert len(actor_gradient_batch) == len(critic_gradient_batch)
+            # assert NUM_AGENTS == len(actor_gradient_batch)
+            # assert len(actor_gradient_batch) == len(critic_gradient_batch)
             # assembled_actor_gradient = actor_gradient_batch[0]
             # assembled_critic_gradient = critic_gradient_batch[0]
             # for i in xrange(len(actor_gradient_batch) - 1):
@@ -165,9 +165,9 @@ def central_agent(net_params_queues, exp_queues):
             #             assembled_critic_gradient[j] += critic_gradient_batch[i][j]
             # actor.apply_gradients(assembled_actor_gradient)
             # critic.apply_gradients(assembled_critic_gradient)
-            for i in xrange(len(actor_gradient_batch)):
-                actor.apply_gradients(actor_gradient_batch[i])
-                critic.apply_gradients(critic_gradient_batch[i])
+            # for i in xrange(len(actor_gradient_batch)):
+            #     actor.apply_gradients(actor_gradient_batch[i])
+            #     critic.apply_gradients(critic_gradient_batch[i])
 
             # log training information
             epoch += 1

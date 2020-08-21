@@ -1,11 +1,15 @@
 import os
 import sys
+
+from rl_server.abr_agent_sim import discrete_BCQ
+
 os.environ['CUDA_VISIBLE_DEVICES']=''
 import numpy as np
 import tensorflow as tf
 import load_trace
 import a3c
-import fixed_env as env
+# import fixed_env as env
+import env as env
 
 
 S_INFO = 6  # bit_rate, buffer_size, next_chunk_size, bandwidth_measurement(throughput and time), chunk_til_video_end
@@ -29,15 +33,17 @@ NN_MODEL = sys.argv[1]
 
 
 def main():
-
-    np.random.seed(RANDOM_SEED)
+    seed = np.random.randint(10, 10086)
+    print 'seed', seed
+    np.random.seed(seed)
 
     assert len(VIDEO_BIT_RATE) == A_DIM
 
     all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(TEST_TRACES)
 
     net_env = env.Environment(all_cooked_time=all_cooked_time,
-                              all_cooked_bw=all_cooked_bw)
+                              all_cooked_bw=all_cooked_bw,
+                              random_seed=seed)
 
     log_path = LOG_FILE + '_' + all_file_names[net_env.trace_idx]
     log_file = open(log_path, 'wb')
@@ -51,6 +57,8 @@ def main():
         critic = a3c.CriticNetwork(sess,
                                    state_dim=[S_INFO, S_LEN],
                                    learning_rate=CRITIC_LR_RATE)
+
+        bcq = discrete_BCQ()
 
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()  # save neural net parameters
@@ -123,11 +131,16 @@ def main():
             state[4, :A_DIM] = np.array(next_video_chunk_sizes) / M_IN_K / M_IN_K  # mega byte
             state[5, -1] = np.minimum(video_chunk_remain, CHUNK_TIL_VIDEO_END_CAP) / float(CHUNK_TIL_VIDEO_END_CAP)
 
-            action_prob = actor.predict(np.reshape(state, (1, S_INFO, S_LEN)))
-            action_cumsum = np.cumsum(action_prob)
-            bit_rate = (action_cumsum > np.random.randint(1, RAND_RANGE) / float(RAND_RANGE)).argmax()
+            # action_prob = actor.predict(np.reshape(state, (1, S_INFO, S_LEN)))
+            # action_cumsum = np.cumsum(action_prob)
+            # bit_rate = (action_cumsum > np.random.randint(1, RAND_RANGE) / float(RAND_RANGE)).argmax()
             # Note: we need to discretize the probability into 1/RAND_RANGE steps,
             # because there is an intrinsic discrepancy in passing single state and batch states
+
+            bit_rate = bcq.select_action(np.reshape(state, (1, S_INFO, S_LEN)))
+            action_prob = np.zeros((len(VIDEO_BIT_RATE)), dtype=np.float64)
+            action_prob[int(bit_rate)] = 1.0
+            action_prob = [action_prob]
 
             s_batch.append(state)
 

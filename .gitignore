@@ -5,3 +5,6 @@ test/gen-*
 
 .vscode
 .idea
+
+
+*.pyc

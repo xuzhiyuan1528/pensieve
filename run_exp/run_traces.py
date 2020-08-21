@@ -9,13 +9,14 @@ RANDOM_SEED = 42
 RUN_TIME = 240  # sec
 MM_DELAY = 40   # millisec
 
-ABR_ALGO = ['robustMPC']
+ABR_ALGO = ['Ours']
 
 os.system('sudo sysctl -w net.ipv4.ip_forward=1')
 
 # TRACE_PATH = '../pantheon_traces/'
 # TRACE_PATH = '../norway_part_train_traces/'
-TRACE_PATH = '../fcc_part_train_traces/'
+TRACE_PATH = '../norway_part_test_traces/'
+# TRACE_PATH = '../fcc_part_train_traces/'
 
 ip = '100.64.0.1'
 REPEAT_TIME = 1

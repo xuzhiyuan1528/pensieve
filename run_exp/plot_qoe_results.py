@@ -88,7 +88,7 @@ base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/
 # base_dir = '/home/cst/wk/Pensieve/data/results_7772mbps_20200805/results'
 
 # alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'Our', 'RL']
-alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'RL', 'BB']
+alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'RL', 'BB', 'Ours']
 # alg_names = ['Ours']
 alg_results = dict()
 

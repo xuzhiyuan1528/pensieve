@@ -8,8 +8,8 @@ import numpy as np
 # base_dir = '/home/cst/wk/Pensieve/data/norway_results/train_results/results'
 # base_dir = '/home/cst/wk/Pensieve/data/results_7772mbps_20200805/results'
 
-base_dir = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/results'
-ori_base_dir = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/results_ori'
+base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results/'
+ori_base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results_ori/'
 
 VIDEO_LEN = 48
 USE_Sigmoild = False

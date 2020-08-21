@@ -122,7 +122,9 @@ class discrete_BCQ(object):
         # fpath = '/home/eric/Data/drl-il/09043156-sNone/mod/bcq_33369_Q' # norway -> weighted
         # fpath = '/home/eric/Data/drl-il/11142215-sNone/mod/bcq_19119_Q' # norway -> weighted
         # fpath = '/home/eric/Data/drl-il/13182406-sNone/mod/bcq_11178_Q' # link304 -> weighted
-        fpath = '/home/eric/Data/drl-il/14024414-sNone/mod/bcq_19119_Q' # link304 -> BCQ
+        # fpath = '/home/eric/Data/drl-il/14024414-sNone/mod/bcq_19119_Q' # link304 -> BCQ
+        fpath = '/home/eric/Data/drl-il/14232215-sNone/mod/bcq_19119_Q' # link304 -> BCQ*
+        # fpath = '../rl_server/results/bcq_11468_Q' # fcc -> weighted*
 
 
         self.threshold = 0.45

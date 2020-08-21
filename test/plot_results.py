@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 # RESULTS_FOLDER = './obv-logs/'
 # RESULTS_FOLDER = './gen-logs/'
-# RESULTS_FOLDER = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results_ori/'
+# RESULTS_FOLDER = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/test_results/results_ori/'
+# RESULTS_FOLDER = '/home/eric/Dev/DRL-IL/pensieve/test/gen-final/obv-logs/'
 RESULTS_FOLDER = '/home/eric/Dev/DRL-IL/pensieve/run_exp/results_ori/'
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0
@@ -20,11 +21,12 @@ COLOR_MAP = plt.cm.jet #nipy_spectral, Set1,Paired
 SIM_DP = 'sim_dp'
 # SCHEMES = ['BB', 'RB', 'FIXED', 'FESTIVE', 'BOLA', 'RL',  'sim_rl', SIM_DP]
 # SCHEMES = ['BOLA', 'RL', 'fastMPC', 'robustMPC', 'Ours', 'BB']
-SCHEMES = ['Ours', 'RL', 'fastMPC']
+SCHEMES = ['Ours']
 # SCHEMES = ['sim_rl', 'sim_rl003', 'sim_rl001', 'sim_rl005', 'sim_iml']
 # SCHEMES = ['sim_rl', 'sim_iml05', 'sim_mpc', 'sim_bb', 'sim_bcq05']
 # SCHEMES = ['sim_rl', 'sim_iml', 'sim_mpc', 'sim_bb', 'sim_bcq']
-# SCHEMES = ['sim_rl', 'sim_iml', 'sim_rl0.5']
+# SCHEMES = ['sim_rl', 'sim_mpc', 'sim_bb', 'sim_imlx', 'sim_bcqx']
+# SCHEMES = ['sim_rl', 'sim_iml', 'sim_bcq', 'sim_rl005', 'sim_iml005', 'sim_bcq005', 'sim_rl05', 'sim_iml05', 'sim_bcq05']
 # SCHEMES = ['sim_rl', 'sim_mpc', 'sim_mpc001', 'sim_mpc003', 'sim_mpc005', 'sim_iml']
 
 def main():
@@ -103,7 +105,8 @@ def main():
 			bit_rate = bit_rate[::-1]
 			buff = buff[::-1]
 			bw = bw[::-1]
-		
+
+		print log_file
 		time_ms = np.array(time_ms)
 		time_ms -= time_ms[0]
 		
@@ -195,12 +198,12 @@ def main():
 	for k, v in reward_all.items():
 		mean = np.mean(v) #/ np.mean(reward_all['RL'])
 		print k, mean, np.std(v)
-	# exit()
+	exit()
 
 	# ---- ---- ---- ----
 	# check each trace
 	# ---- ---- ---- ----
-
+	cnt = 0
 	for l in time_all[SCHEMES[0]]:
 		schemes_check = True
 		for scheme in SCHEMES:
@@ -219,13 +222,22 @@ def main():
 			plt.title(l)
 			plt.ylabel('bit rate selection (kbps)')
 
+			# ax = fig.add_subplot(312)
+			# for scheme in SCHEMES:
+			# 	ax.plot(time_all[scheme][l][:VIDEO_LEN], buff_all[scheme][l][:VIDEO_LEN])
+			# colors = [COLOR_MAP(i) for i in np.linspace(0, 1, len(ax.lines))]
+			# for i,j in enumerate(ax.lines):
+			# 	j.set_color(colors[i])
+			# plt.ylabel('buffer size (sec)')
+
 			ax = fig.add_subplot(312)
 			for scheme in SCHEMES:
-				ax.plot(time_all[scheme][l][:VIDEO_LEN], buff_all[scheme][l][:VIDEO_LEN])
+				ax.plot(time_all[scheme][l][1:VIDEO_LEN], raw_reward_all[scheme][l][1:VIDEO_LEN])
 			colors = [COLOR_MAP(i) for i in np.linspace(0, 1, len(ax.lines))]
-			for i,j in enumerate(ax.lines):
-				j.set_color(colors[i])	
-			plt.ylabel('buffer size (sec)')
+			for i, j in enumerate(ax.lines):
+				j.set_color(colors[i])
+			plt.ylabel('QoE')
+			plt.xlabel('time (sec)')
 
 			ax = fig.add_subplot(313)
 			for scheme in SCHEMES:
@@ -238,11 +250,14 @@ def main():
 
 			SCHEMES_REW = []
 			for scheme in SCHEMES:
-				SCHEMES_REW.append(scheme + ': ' + str(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN])))
+				SCHEMES_REW.append(scheme + ': ' + '{:.1f}'.format(np.sum(raw_reward_all[scheme][l][1:VIDEO_LEN])))
 
-			ax.legend(SCHEMES_REW, loc=9, bbox_to_anchor=(0.5, -0.1), ncol=int(np.ceil(len(SCHEMES) / 2.0)))
+			ax.legend(SCHEMES_REW, loc=9, bbox_to_anchor=(0.5, -0.6), ncol=3)#int(np.ceil(len(SCHEMES) / 2.0)))
 			plt.show()
-		break
+
+		cnt += 1
+		if cnt > 1:
+			break
 
 if __name__ == '__main__':
 	main()

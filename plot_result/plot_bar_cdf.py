@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 # our_reward = np.load(our_reward_path)
 # our_ndone = np.load(our_ndone_path)
 
-RESULTS_FOLDER = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results/results_ori'
+RESULTS_FOLDER = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/test_results/results_ori/'
 
 NUM_BINS = 100
 BITS_IN_BYTE = 8.0

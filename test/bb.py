@@ -19,9 +19,9 @@ RANDOM_SEED = 42
 RAND_RANGE = 1000000
 RESEVOIR = 5  # BB
 CUSHION = 10  # BB
-TRACE_DIR = './cooked_traces-x-3G/'
-SUMMARY_DIR = './gen-logs-3G'
-TRANS_DIR = './gen-traces-3G'
+TRACE_DIR = './cooked_traces/'
+SUMMARY_DIR = './gen-logs'
+TRANS_DIR = './gen-traces'
 LOG_FILE = SUMMARY_DIR + '/log_sim_bb'
 TRANS_FILE = TRANS_DIR + '/trace_sim_bb'
 # log in format of time_stamp bit_rate buffer_size rebuffer_time chunk_size download_time reward
