@@ -8,8 +8,18 @@ import numpy as np
 # base_dir = '/home/cst/wk/Pensieve/data/norway_results/train_results/results'
 # base_dir = '/home/cst/wk/Pensieve/data/results_7772mbps_20200805/results'
 
-base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results/'
-ori_base_dir = '/home/eric/Dropbox/Projects-Research/0-DRL-Imitation/norway_results/train_results/results_ori/'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/train_results'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/norway_results/test_results'
+root = '/home/cst/Dropbox/0-DRL-Imitation/link304-results'
+# root = '/home/cst/Dropbox/0-DRL-Imitation/sim_results'
+base_dir = os.path.join(root, 'results')
+ori_base_dir = os.path.join(root, 'results_ori')
+
+SIM_FLAG = False
+if root.find('sim_') >= 0:
+    SIM_FLAG = True
+    base_dir = os.path.join(root, 'gen-traces')
+    ori_base_dir = os.path.join(root, 'gen-logs')
 
 VIDEO_LEN = 48
 USE_Sigmoild = False
@@ -203,6 +213,11 @@ class AlgResults():
 
 # alg_names = ['BOLA', 'fastMPC', 'robustMPC', 'Our', 'RL']
 alg_names = ['BB', 'fastMPC', 'robustMPC', 'BOLA', 'Ours', 'RL']
+if root.find('link304') >= 0:
+    alg_names = ['fastMPC', 'robustMPC', 'BOLA', 'Ours', 'RL']
+if SIM_FLAG:
+    alg_names = ['fastMPC', 'robustMPC', 'BOLA', 'Ours', 'RL']
+
 alg_results = dict()
 
 for alg_name in alg_names:
@@ -258,7 +273,7 @@ color = ['#8437A6', '#4285F4', '#FBBC05', '#EA4335', '#34A853', '#FFDEAD']
 error_kw = {'ecolor':'k', 'capsize':3, 'elinewidth':2}
 patterns = ('|', '-', 'x', '//', '\\\\', '+')
 
-plt.figure()
+plt.figure(figsize=(10,7))
 plt.grid(linestyle='--', linewidth=0.5, axis='y', dashes=(10, 5))
 ax = plt.gca()
 ax.set_axisbelow(True)
@@ -296,10 +311,14 @@ plt.xticks(index, names)
 # plt.legend(bbox_to_anchor=(0.9, 1.10), ncol=len(alg_names), fontsize=12)
 plt.legend(loc='lower left', bbox_to_anchor=(0., 0.98, 1., .08), mode='expand', ncol=len(alg_names), fontsize=13, frameon=False)
 
-show = True
-if show:
-    plt.show()
-    plt.close()
-else:
-    # plt.savefig('Normalized average QoE.eps', format='eps')
-    plt.savefig('Normalized average QoE.jpg')
+
+img_path = os.path.join(root, 'Normalized_average_QoE.jpg')
+# show = True
+# if show:
+#     plt.show()
+# else:
+#     # plt.savefig('Normalized average QoE.eps', format='eps')
+#     plt.savefig(img_path)
+# plt.show()
+plt.savefig(img_path)
+plt.close()
